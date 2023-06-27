@@ -1,0 +1,5120 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+<!-- `site.alt_lang` can specify a language different from the UI -->
+<html lang="en"
+  
+>
+
+  <!--
+  The Head
+-->
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  
+
+    
+
+    
+
+  
+
+  
+
+  
+
+  
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Payatu Hiring CTF 2022: Challenges Writeup" />
+<meta name="author" content="Bornunique911" />
+<meta property="og:locale" content="en" />
+<meta name="description" content="Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2 Hello everyone, I hope you all are doing great things and learning&#39;s everyday just like me. So I hereby came with my new and fresh blog again on Payatu Hiring CTF challenges walkthroughs. I solved 8 challenges out of 30 challenges which consists of Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2, Catch Me If You Can and so on and I secured 12th rank. I will be walking you through the challenges from Web and Network category which consists the following : Web Challenges : Babysqli Stardust EasyCalc Network Challenges : Mistake-1 Mistake-2 Payatu Hiring CTF Platform (https://ctf.payatu.com/) Prizes For The Winners : Introduction : Timeline of the CTF : The CTF will start at 9:00 AM on 15th October 2022 and end at 9:00 PM (12 Hours) There are multiple tracks of challenges. Start with the one you are comfortable with and ride your way up to the top. Do not attack the CTF platform or deliberately perform actions that might lead to the platform/challenges being unavailable for other players. Rules : Any kind of flag sharing/cheating will lead to disqualification. Any request to consider allotment of points for challenges solved but flag not submitted will not be entertained. Winning / Being in the top list of the leaderboard will only help you land an interview with Payatu. You will have to clear the interviews to get the job offer. This is an individual event, and team participation is not allowed. Anyone can play the CTF, but the hiring is limited to only Indian Participants. Let’s begin the writeup first with web challenges. Let’s get started. Web Category :- Babysqli:- Babysqli Challenge Description Let’s start with Babysqli from Web challenge. First things first I visited the provided link to the challenge and I land at this page which is as under: Simple Login Page from http://babysqli.payatu.lol/ By exploring the website for quite sometime, I noticed that it is vulnerable to MySQL Injection by looking at the source code which is mentioned at the end of the page. Source Code for MySQL database So after looking at the source code the query field has equipped some filters which are as under : $query = &#39;SELECT * FROM users WHERE username=&quot;&#39;.$user.&#39;&quot; AND password=&quot;&#39;.$pass.&#39;&quot;&#39;; So if anyone who will run the payloads like this &#39; or 1 or &#39; admin&#39; || &#39;1&#39; == &#39;1 &#39; || &#39;1&#39;== &#39;1 will tend fail as it is opposed by the filters equipped. So I have two options to exploit MySQL either by using automated tool called sqlmap or manual injection. So I used sqlmap for exploiting this type of SQL injection. Firstly, I will enumerate forms by running following command : sqlmap -u http://babysqli.payatu.lol/ --forms Enumerating Forms Now, I took the next step to dump databases by running following command : sqlmap -u http://babysqli.payatu.lol/ --forms --dbs Enumerating Databases Now after enumerating databases, I have to enumerate how many tables are there in a particular database but there are 3 databases to choose so which one to choose is a question standing. So I choose &quot;babysqli&quot; database because I feel that it may contain juicy data to extract like users, passwords, etc. So, now I will enumerate tables of database &quot;babysqli&quot; with the following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli --tables Enumerating Tables Now, as there is only one table called &quot;users&quot; we can enumerate the columns for a particular table by the following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users --columns Enumerating columns Now, finally I will dump the data from the columns by following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users -C id,username,password --dump Got the password of all the users But unfortunately none of them have flag inside their accounts. So, I basically copied the payload from the sqlmap output and successfully logged into by pasting the following payload in the username and password field for the account and I found the flag from the source code. xYPs&quot; UNION ALL SELECT NULL,CONCAT(0x7178626b71,0x6478697349625a4d527266625861596455566c704b4c714f65684777674d737145747a614b6a6159,0x7176707171),NULL# Congratulations message for solving the challenge Finally flag for BabySqli challenge was captured Voila I have successfully captured the babysqli challenge flag with the help of sqlmap. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Stardust:- Stardust Challenge Description Let’s start with Stardust from Web challenge. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of http://stardust.payatu.lol/ By exploring the website for quite sometime, I noticed that there are 6 chapters for Dev Wars which points to the different location on the main page. Let’s say for example if I clicked Chapter 1 from the main page it goes to different location which is (http://stardust.payatu.lol/chapter?episode=the+phantom+feature) in case of Chapter 1 and so on and so forth. Now when I visited Chapter 1 link there was one parameter which was important to look at and that was &quot;episode&quot;. So by looking at the Chapter 1 link (http://stardust.payatu.lol/chapter?episode=the+phantom+feature) for sometime I noticed that it runs a episode of Chapter 1 and the page is at still showing the contents of the episode. Playing episode 1 from Chapter 1 So I decided that why not explore &quot;episode=&quot; parameter by giving &quot;&#123;&#123;9 * 9&#125;&#125;&quot;as payload and it gave the product of &quot;9 * 9&quot; which is 81 as output. Product of 9 multiplied by 9 So by observing this I thought that the &quot;episode&quot; is vulnerable to SSTI vulnerability aka Server Side Template Injection. So I decided to exploit it via some SSTI payloads. So I decided to use a very good writeup from HackIT CTF 2018 on ctftime.org published by the user kazkiti on SSTI payloads which he explained everything very nicely in detail manner on how to identify the vulnerability to how to get the flag at the end by exploiting SSTI. Little glance of the CTF writeup published by the user kazkiti on ctftime.org So first things first as I observed that the web application is vulnerable to SSTI, then I decided to follow along by reading the writeup thoroughly and I moved further with the first payload which is &quot;&#123;&#123;__self__.__doc__&#125;&#125;&quot; by appending it to after &quot;episode=&quot; parameter whether the web application is using Jinja2 or not. Voila it successfully gave me a Jinja2 error which is as under : Error confirms that it is Jinja2 running in the backend So after confirming that it’s Jinja2 I can either use HackTricks blog on SSTI payloads or the payloads which the writeup I discussed earlier have mentioned in their writeup. So, I will use the payloads which the writeup which I discussed earlier have mentioned as a weapon as it gave us an idea how an SSTI is successfully exploited step-by-step. So as per the writeup, I used the second payload which is &quot;&#123;&#123;self&#125;&#125;&quot; after &quot;episode=&quot; as under : Trying “&#123;&#123;self&#125;&#125;” as the second payload As I can observe here that it shows &lt;TemplateReference None&gt; as output when I typed &quot;&#123;&#123;self&#125;&#125;&quot;. So for more information, I would recommend to read the documentation on Jinja2 and a writeup where the same person who I have took the reference of has mentioned in their previous writeup. Moving along I passed the third payload which is &quot;&#123;&#123;config&#125;&#125;&quot; after &quot;episode=&quot; I got the following as follows : Passing &#123;&#123;config&#125;&#125; as the third payload Finally I have successfully captured the flag when I typed &quot;&#123;&#123;config&#125;&#125;&quot; as a parameter value. So the flag is as under : Finally flag for Stardust challenge was captured — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — EasyCalc:- EasyCalc Challenge Description Let’s start with EasyCalc from Web category. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of http://easy-calc.payatu.lol/ By exploring the website for quite sometime, I noticed that it’s a simple page which has a calculator functionality to compute simple operations such as addition, subtraction, division and multiplication and trigonometric operations such as sin, cos and tan. So I tried to google search the writeups of the any previous CTF’s if they have anything related to bypass this simple calculator functionality and I found some interesting results which are as under : Google Search Results for Simple Calculator CTF writeups So later on I decided why not I should check the source code of the page and so I checked the source code and there I found some script tags which contains the following code: JavaScript Code Also from the source code I found some important thing to note which is the input tag in which the value is nothing but I came across the word &quot;disabled&quot;. Interesting thing I noted here about why is disabled here. After sometime I thought that why not make some changes in the input tag by adding &quot;enabled=enabled&quot; by removing &quot;disabled&quot; from the input tag by inspecting the element as in the view page source we can’t make any changes and let’s see what we get. We got following as output : Removing disabled and adding enabled in the input tag And one other thing notice is that now I can type in the input whatever I want like alphabets,etc but it will throw an error because it requires a mathematical operations like 7+7, etc and not the random alphabets and special characters. Now here I was little bit stuck because I have read many writeups based on simple calc by googling the same. But afterwards I got one idea why not I should check Network tab for what’s happening behind the scenes. So I tried simple math addition between numbers and I got the following output in the Network Tab : So now it’s clear that I have to exploit nodejs whereby nodejs has a extensive math library called math.js. So ultimately I have to exploit math.js in short with some payloads which return output as &quot;[Object][object]&quot;. So I googled for math.js exploit on Google and I found this as output as google search results : I used https://jwlss.pw/mathjs for exploiting math.js library. So I read the context and applied the same to web application from the blog post. Now from the article I can relate that math.js has a vulnerability of Remote Code Execution so let’s get our hands dirty and exploit the math.js library through our web application and solve the challenge successfully. Also I noticed further that &quot;query=&quot;is vulnerable and so I can exploit it by using the payloads which was mentioned in the article which I have read earlier. Now I will make my hands dirty and exploit query field by passing this as payload &quot;cos.constructor(\&quot;return process.env\&quot;)()&quot; and let’s see what we get as output : Request for changing query field content Request after sending the payload in query field Response after sending payload in the query field Finally flag for EasyCalc was captured Voila we have successfully solved all the web challenges. Now it’s time to solve challenges from Network category. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Network Category :- Mistake-1:- Mistake -1 Challenge Description Let’s start with Mistake-1 from Network category. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of https://mistake.payatu.lol By exploring the website for quite sometime, I noticed that it’s a static page which seems like a normal portfolio page of a user. I quickly checked the functionality of the page whether any content is clickable or not and I found that some content is clickable and some isn’t. So I figured out that home page, about me, etc is clickable whereas when I click on social media handles like Twitter, Facebook, Google+ and Linkedin turns out to be unclickable as it is an unclickable content but interestingly I found that except for social media handles there also possess GitLab handle which points the link to the GitLab account of the user named Sad Detail. Clicking on social media handles such as Twitter,Facebook,Google+ and Linkedin turns out to be nothing interesting But apart from social handles,GitLab has a link to visit to https://gitlab.com/saddetail Let’s visit the GitLab link which points to user Sad Detail’s GitLab account. By visiting the user account I found that there is only one single repository which is his my-portfolio as it is also hosted on the website from which I came from. By visiting GitLab page,we got the GitLab user named Sad Detail The user named Sad Detail possess only one repository named my-portfolio in his GitLab account Overview of GitLab repository named my-portfolio Let’s explore my-portfolio repository of user Sad Detail, so I was greeted with these files and folders in his repository. So I got one idea that as GitHub and GitLab possess similar functionality of managing commits by maintaining commit logs so why not explore the history of the commit from the starting point. So I just clicked the repository name and then I clicked history and thus I was greeted with more commits which are older than the present one which I was currently on. Clicking on my-portfolio Clicking on history to view the other commits for the repository The following screenshot shows the order of commits that were created by the user Sad Detail for their my-portfolio repository. I noticed that one commit seems to be useful among 8 commits that were made in total. The commit that was interesting according to me was “damn, never thought people at NULLCON would crack it so easily. My security…” as I marked the keyword &quot;NULLCON&quot; in the commit description. Order of commits which are made for my-portfolio repository Luckily I got my instinct correct and it was an interesting commit with some nice changes made. Clicking on damn, never thought people at NULLCON would crack it so easily. My security consultant friends were right commit to look further what’s inside and what were the changes made After exploring the NULLCON keyword commit, I was greeted with some nice 6 deletions and 0 deletions in the index.html file. At first glance, we see that there is one index.html file which contains some interesting content with 6 deletions and 0 additions Looking closer to the index.html file, I found that there is some base64 encoded string commented in the file which might be useful. So I copied that string for future use in Sublime Text editor. Base64 encoded string Without wasting any time I spinned up CyberChef on the browser and I just pasted the string which I copied earlier into the input field with some proper formatting. Voila when I pasted the string I got a suggestion from a CyberChef that it is definitely a base64 encoded string which can be decoded as a normal string. Placing base64 encoded in CyberChef for decoding it After decoding base64 string After decoding the base64 encoded string, I got the following message as the output shown below: Message after decoding from base64 string Now what to do next after getting this message. So I first thought that this must be it for the challenge so I submitted the flag as &quot;flag&#123;take-a-few-pages-from-my-book&#125;&quot;. But sadly it was not as expected as in the challenge description there was some interesting note given by the challenge author and also it’s a Network category challenge so the flag might be incorrect in that respect. By reading the note mentioned in the challenge description, I again picked the two keywords which were Room no. 22 and Room no. 9922 which ultimately states that Room no.22 is under repair aka SSH Default port 22 is under repair whereas you can check Room no. 9922 instead states that it was an another SSH port in exception of SSH default port 22. Wait what! I was puzzled at that moment. So I just checked port 9922 real quick by visiting it by appending to the actual website which in turn result into like this as under : It was redirected to ssh version information and then it was a connection reset For further enumeration we can also check via nmap (Network Mapper Tool) use for scanning ports and services. Thus I concluded that port 9922 is a ssh port open for ssh login. Nmap result So I move further and tried to login via ssh. But wait what should be the credentials for ssh login? So I just visited my notes again what I have so far in my notes to be use for ssh login. So while reading I found that the message which I got at the time of decoding the base64 string via CyberChef was pointing somewhere around password. So I thought there is a password present in the message which I found in the following screenshot : Password for user Sad Detail found from one of GitLab commits So voila I made a username:password pair and thus I got &quot;saddetail:take-a-few-pages-from-my-book&quot; as a successful password pair and I achieved a successful login in a ssh session. Successful Login with the creds saddetail:take-a-few-pages-from-my-book ls command not found error as the shell is rbash After logging in,I tried to enumerate the file system for finding the flag by using directory listing command &quot;ls&quot; but it failed and it simply throws an error of command not found. So I was little stuck here on how to move further. Also I observed something weird from the command not found error that it is a restrictive bash shell as it throws an error when I typed &quot;ls&quot;in the terminal and not the normal bash shell. So I decided to take a reference from my writeup on Recovery room on TryHackMe where there was a similar scenario. GitHub - Bornunique911/THM-Recovery Taking TryHackMe room named Recovery writeup made by me as a reference It gives me an error as it is not a normal bash shell but a rbash shell aka restricted bash shell So by taking the reference from my writeup, I exited the ssh session and I tried to append &quot;/bin/bash&quot; in the ssh command shown in the screenshot above and it failed. ssh saddetail@mistake.payatu.lol -p 9922 &quot;/bin/bash&quot; So I got another idea like what if I try to run a directory listing command &quot;ls -la&quot; by appending it in the ssh command. ssh saddetail@mistake.payatu.lol -p 9922 “ls -la” Voila it got successful finally and I get the listing of the files and directories including flag.txt file. For further step, for capturing the Mistake-1 flag, I just append to the previous command &quot;ls -la;cat flag.txt&quot; ssh saddetail@mistake.payatu.lol -p 9922 “ls -la;cat flag.txt” It was successful when I tried directory listing of files and directories Also I got a flag file while directory listing Finally flag for Mistake-1 challenge was captured Voila after executing the above command, I successfully got the Mistake-1 flag. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Mistake-2 :- Mistake-2 Challenge Description As I captured the Mistake-1 flag, I moved further with Mistake-2 challenge from the Network category. Let’s start. In Mistake-1, I got the flag from the user’s home directory without entering into a ssh session. So I thought now in Mistake-2 challenge, I have to escalate the privileges to root. So I have to logged into a stable ssh session for privilege escalation as the ssh session shell is rbash. In simple words, I have to escape rbash shell in the ssh session to bash shell. So to do that I searched for all the possible results for rbash shell escaping via Google Search but none work except for one which is as under: rbash shell esacping Steps to escape rbash shell Successfully entered into a bash shell by the steps mentioned So as I have entered a bash shell then I can simply run &quot;sudo -l&quot; and the result for the same is as follows: Privilege Escalation To Root “sudo -l” output As I observed that SETENV is enabled,I can change the root user’s environment variables. Contents of script.py From the above script.py, I observed that it is a simple calculator. As I can change the environment of root user, let’s make our own python library and add it to the &quot;PATH&quot; variable for execution. Let’s change directory to &quot;/tmp&quot; . As os library is called first, so let’s craft it. Finally for Mistake-2 challenge was captured Voila I successfully rooted the challenge by using library hijacking for privilege escalation to root. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Thank you so much everyone for reading this blog till the end. Peace !!! — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — References :- GitHub - sqlmapproject/sqlmap: Automatic SQL injection and database takeover tooldvna/a9-using-components-with-known-vulnerability.md at master · appsecco/dvnaHow we exploited a remote execution vulnerability in math.jsCTFtime.org / HackIT CTF 2018 / Believer Case / WriteupCTFtime.org / TokyoWesterns CTF 4th 2018 / Shrine / WriteupSSTI (Server Side Template Injection) https://jinja.palletsprojects.com/en/2.11.x/api/#exceptions&lt;/ul&gt;Sad Detail · GitLabCyberChefhttps://tryhackme.com/room/recoveryGitHub - Bornunique911/THM-Recoveryrbash shell esacpingLinux Privilege Escalation: Python Library Hijacking - Hacking Articles" />
+<meta property="og:description" content="Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2 Hello everyone, I hope you all are doing great things and learning&#39;s everyday just like me. So I hereby came with my new and fresh blog again on Payatu Hiring CTF challenges walkthroughs. I solved 8 challenges out of 30 challenges which consists of Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2, Catch Me If You Can and so on and I secured 12th rank. I will be walking you through the challenges from Web and Network category which consists the following : Web Challenges : Babysqli Stardust EasyCalc Network Challenges : Mistake-1 Mistake-2 Payatu Hiring CTF Platform (https://ctf.payatu.com/) Prizes For The Winners : Introduction : Timeline of the CTF : The CTF will start at 9:00 AM on 15th October 2022 and end at 9:00 PM (12 Hours) There are multiple tracks of challenges. Start with the one you are comfortable with and ride your way up to the top. Do not attack the CTF platform or deliberately perform actions that might lead to the platform/challenges being unavailable for other players. Rules : Any kind of flag sharing/cheating will lead to disqualification. Any request to consider allotment of points for challenges solved but flag not submitted will not be entertained. Winning / Being in the top list of the leaderboard will only help you land an interview with Payatu. You will have to clear the interviews to get the job offer. This is an individual event, and team participation is not allowed. Anyone can play the CTF, but the hiring is limited to only Indian Participants. Let’s begin the writeup first with web challenges. Let’s get started. Web Category :- Babysqli:- Babysqli Challenge Description Let’s start with Babysqli from Web challenge. First things first I visited the provided link to the challenge and I land at this page which is as under: Simple Login Page from http://babysqli.payatu.lol/ By exploring the website for quite sometime, I noticed that it is vulnerable to MySQL Injection by looking at the source code which is mentioned at the end of the page. Source Code for MySQL database So after looking at the source code the query field has equipped some filters which are as under : $query = &#39;SELECT * FROM users WHERE username=&quot;&#39;.$user.&#39;&quot; AND password=&quot;&#39;.$pass.&#39;&quot;&#39;; So if anyone who will run the payloads like this &#39; or 1 or &#39; admin&#39; || &#39;1&#39; == &#39;1 &#39; || &#39;1&#39;== &#39;1 will tend fail as it is opposed by the filters equipped. So I have two options to exploit MySQL either by using automated tool called sqlmap or manual injection. So I used sqlmap for exploiting this type of SQL injection. Firstly, I will enumerate forms by running following command : sqlmap -u http://babysqli.payatu.lol/ --forms Enumerating Forms Now, I took the next step to dump databases by running following command : sqlmap -u http://babysqli.payatu.lol/ --forms --dbs Enumerating Databases Now after enumerating databases, I have to enumerate how many tables are there in a particular database but there are 3 databases to choose so which one to choose is a question standing. So I choose &quot;babysqli&quot; database because I feel that it may contain juicy data to extract like users, passwords, etc. So, now I will enumerate tables of database &quot;babysqli&quot; with the following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli --tables Enumerating Tables Now, as there is only one table called &quot;users&quot; we can enumerate the columns for a particular table by the following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users --columns Enumerating columns Now, finally I will dump the data from the columns by following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users -C id,username,password --dump Got the password of all the users But unfortunately none of them have flag inside their accounts. So, I basically copied the payload from the sqlmap output and successfully logged into by pasting the following payload in the username and password field for the account and I found the flag from the source code. xYPs&quot; UNION ALL SELECT NULL,CONCAT(0x7178626b71,0x6478697349625a4d527266625861596455566c704b4c714f65684777674d737145747a614b6a6159,0x7176707171),NULL# Congratulations message for solving the challenge Finally flag for BabySqli challenge was captured Voila I have successfully captured the babysqli challenge flag with the help of sqlmap. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Stardust:- Stardust Challenge Description Let’s start with Stardust from Web challenge. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of http://stardust.payatu.lol/ By exploring the website for quite sometime, I noticed that there are 6 chapters for Dev Wars which points to the different location on the main page. Let’s say for example if I clicked Chapter 1 from the main page it goes to different location which is (http://stardust.payatu.lol/chapter?episode=the+phantom+feature) in case of Chapter 1 and so on and so forth. Now when I visited Chapter 1 link there was one parameter which was important to look at and that was &quot;episode&quot;. So by looking at the Chapter 1 link (http://stardust.payatu.lol/chapter?episode=the+phantom+feature) for sometime I noticed that it runs a episode of Chapter 1 and the page is at still showing the contents of the episode. Playing episode 1 from Chapter 1 So I decided that why not explore &quot;episode=&quot; parameter by giving &quot;&#123;&#123;9 * 9&#125;&#125;&quot;as payload and it gave the product of &quot;9 * 9&quot; which is 81 as output. Product of 9 multiplied by 9 So by observing this I thought that the &quot;episode&quot; is vulnerable to SSTI vulnerability aka Server Side Template Injection. So I decided to exploit it via some SSTI payloads. So I decided to use a very good writeup from HackIT CTF 2018 on ctftime.org published by the user kazkiti on SSTI payloads which he explained everything very nicely in detail manner on how to identify the vulnerability to how to get the flag at the end by exploiting SSTI. Little glance of the CTF writeup published by the user kazkiti on ctftime.org So first things first as I observed that the web application is vulnerable to SSTI, then I decided to follow along by reading the writeup thoroughly and I moved further with the first payload which is &quot;&#123;&#123;__self__.__doc__&#125;&#125;&quot; by appending it to after &quot;episode=&quot; parameter whether the web application is using Jinja2 or not. Voila it successfully gave me a Jinja2 error which is as under : Error confirms that it is Jinja2 running in the backend So after confirming that it’s Jinja2 I can either use HackTricks blog on SSTI payloads or the payloads which the writeup I discussed earlier have mentioned in their writeup. So, I will use the payloads which the writeup which I discussed earlier have mentioned as a weapon as it gave us an idea how an SSTI is successfully exploited step-by-step. So as per the writeup, I used the second payload which is &quot;&#123;&#123;self&#125;&#125;&quot; after &quot;episode=&quot; as under : Trying “&#123;&#123;self&#125;&#125;” as the second payload As I can observe here that it shows &lt;TemplateReference None&gt; as output when I typed &quot;&#123;&#123;self&#125;&#125;&quot;. So for more information, I would recommend to read the documentation on Jinja2 and a writeup where the same person who I have took the reference of has mentioned in their previous writeup. Moving along I passed the third payload which is &quot;&#123;&#123;config&#125;&#125;&quot; after &quot;episode=&quot; I got the following as follows : Passing &#123;&#123;config&#125;&#125; as the third payload Finally I have successfully captured the flag when I typed &quot;&#123;&#123;config&#125;&#125;&quot; as a parameter value. So the flag is as under : Finally flag for Stardust challenge was captured — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — EasyCalc:- EasyCalc Challenge Description Let’s start with EasyCalc from Web category. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of http://easy-calc.payatu.lol/ By exploring the website for quite sometime, I noticed that it’s a simple page which has a calculator functionality to compute simple operations such as addition, subtraction, division and multiplication and trigonometric operations such as sin, cos and tan. So I tried to google search the writeups of the any previous CTF’s if they have anything related to bypass this simple calculator functionality and I found some interesting results which are as under : Google Search Results for Simple Calculator CTF writeups So later on I decided why not I should check the source code of the page and so I checked the source code and there I found some script tags which contains the following code: JavaScript Code Also from the source code I found some important thing to note which is the input tag in which the value is nothing but I came across the word &quot;disabled&quot;. Interesting thing I noted here about why is disabled here. After sometime I thought that why not make some changes in the input tag by adding &quot;enabled=enabled&quot; by removing &quot;disabled&quot; from the input tag by inspecting the element as in the view page source we can’t make any changes and let’s see what we get. We got following as output : Removing disabled and adding enabled in the input tag And one other thing notice is that now I can type in the input whatever I want like alphabets,etc but it will throw an error because it requires a mathematical operations like 7+7, etc and not the random alphabets and special characters. Now here I was little bit stuck because I have read many writeups based on simple calc by googling the same. But afterwards I got one idea why not I should check Network tab for what’s happening behind the scenes. So I tried simple math addition between numbers and I got the following output in the Network Tab : So now it’s clear that I have to exploit nodejs whereby nodejs has a extensive math library called math.js. So ultimately I have to exploit math.js in short with some payloads which return output as &quot;[Object][object]&quot;. So I googled for math.js exploit on Google and I found this as output as google search results : I used https://jwlss.pw/mathjs for exploiting math.js library. So I read the context and applied the same to web application from the blog post. Now from the article I can relate that math.js has a vulnerability of Remote Code Execution so let’s get our hands dirty and exploit the math.js library through our web application and solve the challenge successfully. Also I noticed further that &quot;query=&quot;is vulnerable and so I can exploit it by using the payloads which was mentioned in the article which I have read earlier. Now I will make my hands dirty and exploit query field by passing this as payload &quot;cos.constructor(\&quot;return process.env\&quot;)()&quot; and let’s see what we get as output : Request for changing query field content Request after sending the payload in query field Response after sending payload in the query field Finally flag for EasyCalc was captured Voila we have successfully solved all the web challenges. Now it’s time to solve challenges from Network category. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Network Category :- Mistake-1:- Mistake -1 Challenge Description Let’s start with Mistake-1 from Network category. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of https://mistake.payatu.lol By exploring the website for quite sometime, I noticed that it’s a static page which seems like a normal portfolio page of a user. I quickly checked the functionality of the page whether any content is clickable or not and I found that some content is clickable and some isn’t. So I figured out that home page, about me, etc is clickable whereas when I click on social media handles like Twitter, Facebook, Google+ and Linkedin turns out to be unclickable as it is an unclickable content but interestingly I found that except for social media handles there also possess GitLab handle which points the link to the GitLab account of the user named Sad Detail. Clicking on social media handles such as Twitter,Facebook,Google+ and Linkedin turns out to be nothing interesting But apart from social handles,GitLab has a link to visit to https://gitlab.com/saddetail Let’s visit the GitLab link which points to user Sad Detail’s GitLab account. By visiting the user account I found that there is only one single repository which is his my-portfolio as it is also hosted on the website from which I came from. By visiting GitLab page,we got the GitLab user named Sad Detail The user named Sad Detail possess only one repository named my-portfolio in his GitLab account Overview of GitLab repository named my-portfolio Let’s explore my-portfolio repository of user Sad Detail, so I was greeted with these files and folders in his repository. So I got one idea that as GitHub and GitLab possess similar functionality of managing commits by maintaining commit logs so why not explore the history of the commit from the starting point. So I just clicked the repository name and then I clicked history and thus I was greeted with more commits which are older than the present one which I was currently on. Clicking on my-portfolio Clicking on history to view the other commits for the repository The following screenshot shows the order of commits that were created by the user Sad Detail for their my-portfolio repository. I noticed that one commit seems to be useful among 8 commits that were made in total. The commit that was interesting according to me was “damn, never thought people at NULLCON would crack it so easily. My security…” as I marked the keyword &quot;NULLCON&quot; in the commit description. Order of commits which are made for my-portfolio repository Luckily I got my instinct correct and it was an interesting commit with some nice changes made. Clicking on damn, never thought people at NULLCON would crack it so easily. My security consultant friends were right commit to look further what’s inside and what were the changes made After exploring the NULLCON keyword commit, I was greeted with some nice 6 deletions and 0 deletions in the index.html file. At first glance, we see that there is one index.html file which contains some interesting content with 6 deletions and 0 additions Looking closer to the index.html file, I found that there is some base64 encoded string commented in the file which might be useful. So I copied that string for future use in Sublime Text editor. Base64 encoded string Without wasting any time I spinned up CyberChef on the browser and I just pasted the string which I copied earlier into the input field with some proper formatting. Voila when I pasted the string I got a suggestion from a CyberChef that it is definitely a base64 encoded string which can be decoded as a normal string. Placing base64 encoded in CyberChef for decoding it After decoding base64 string After decoding the base64 encoded string, I got the following message as the output shown below: Message after decoding from base64 string Now what to do next after getting this message. So I first thought that this must be it for the challenge so I submitted the flag as &quot;flag&#123;take-a-few-pages-from-my-book&#125;&quot;. But sadly it was not as expected as in the challenge description there was some interesting note given by the challenge author and also it’s a Network category challenge so the flag might be incorrect in that respect. By reading the note mentioned in the challenge description, I again picked the two keywords which were Room no. 22 and Room no. 9922 which ultimately states that Room no.22 is under repair aka SSH Default port 22 is under repair whereas you can check Room no. 9922 instead states that it was an another SSH port in exception of SSH default port 22. Wait what! I was puzzled at that moment. So I just checked port 9922 real quick by visiting it by appending to the actual website which in turn result into like this as under : It was redirected to ssh version information and then it was a connection reset For further enumeration we can also check via nmap (Network Mapper Tool) use for scanning ports and services. Thus I concluded that port 9922 is a ssh port open for ssh login. Nmap result So I move further and tried to login via ssh. But wait what should be the credentials for ssh login? So I just visited my notes again what I have so far in my notes to be use for ssh login. So while reading I found that the message which I got at the time of decoding the base64 string via CyberChef was pointing somewhere around password. So I thought there is a password present in the message which I found in the following screenshot : Password for user Sad Detail found from one of GitLab commits So voila I made a username:password pair and thus I got &quot;saddetail:take-a-few-pages-from-my-book&quot; as a successful password pair and I achieved a successful login in a ssh session. Successful Login with the creds saddetail:take-a-few-pages-from-my-book ls command not found error as the shell is rbash After logging in,I tried to enumerate the file system for finding the flag by using directory listing command &quot;ls&quot; but it failed and it simply throws an error of command not found. So I was little stuck here on how to move further. Also I observed something weird from the command not found error that it is a restrictive bash shell as it throws an error when I typed &quot;ls&quot;in the terminal and not the normal bash shell. So I decided to take a reference from my writeup on Recovery room on TryHackMe where there was a similar scenario. GitHub - Bornunique911/THM-Recovery Taking TryHackMe room named Recovery writeup made by me as a reference It gives me an error as it is not a normal bash shell but a rbash shell aka restricted bash shell So by taking the reference from my writeup, I exited the ssh session and I tried to append &quot;/bin/bash&quot; in the ssh command shown in the screenshot above and it failed. ssh saddetail@mistake.payatu.lol -p 9922 &quot;/bin/bash&quot; So I got another idea like what if I try to run a directory listing command &quot;ls -la&quot; by appending it in the ssh command. ssh saddetail@mistake.payatu.lol -p 9922 “ls -la” Voila it got successful finally and I get the listing of the files and directories including flag.txt file. For further step, for capturing the Mistake-1 flag, I just append to the previous command &quot;ls -la;cat flag.txt&quot; ssh saddetail@mistake.payatu.lol -p 9922 “ls -la;cat flag.txt” It was successful when I tried directory listing of files and directories Also I got a flag file while directory listing Finally flag for Mistake-1 challenge was captured Voila after executing the above command, I successfully got the Mistake-1 flag. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Mistake-2 :- Mistake-2 Challenge Description As I captured the Mistake-1 flag, I moved further with Mistake-2 challenge from the Network category. Let’s start. In Mistake-1, I got the flag from the user’s home directory without entering into a ssh session. So I thought now in Mistake-2 challenge, I have to escalate the privileges to root. So I have to logged into a stable ssh session for privilege escalation as the ssh session shell is rbash. In simple words, I have to escape rbash shell in the ssh session to bash shell. So to do that I searched for all the possible results for rbash shell escaping via Google Search but none work except for one which is as under: rbash shell esacping Steps to escape rbash shell Successfully entered into a bash shell by the steps mentioned So as I have entered a bash shell then I can simply run &quot;sudo -l&quot; and the result for the same is as follows: Privilege Escalation To Root “sudo -l” output As I observed that SETENV is enabled,I can change the root user’s environment variables. Contents of script.py From the above script.py, I observed that it is a simple calculator. As I can change the environment of root user, let’s make our own python library and add it to the &quot;PATH&quot; variable for execution. Let’s change directory to &quot;/tmp&quot; . As os library is called first, so let’s craft it. Finally for Mistake-2 challenge was captured Voila I successfully rooted the challenge by using library hijacking for privilege escalation to root. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Thank you so much everyone for reading this blog till the end. Peace !!! — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — References :- GitHub - sqlmapproject/sqlmap: Automatic SQL injection and database takeover tooldvna/a9-using-components-with-known-vulnerability.md at master · appsecco/dvnaHow we exploited a remote execution vulnerability in math.jsCTFtime.org / HackIT CTF 2018 / Believer Case / WriteupCTFtime.org / TokyoWesterns CTF 4th 2018 / Shrine / WriteupSSTI (Server Side Template Injection) https://jinja.palletsprojects.com/en/2.11.x/api/#exceptions&lt;/ul&gt;Sad Detail · GitLabCyberChefhttps://tryhackme.com/room/recoveryGitHub - Bornunique911/THM-Recoveryrbash shell esacpingLinux Privilege Escalation: Python Library Hijacking - Hacking Articles" />
+<link rel="canonical" href="https://bornunique911.medium.com/payatu-hiring-ctf-2022-challenges-writeup-87de06310e6d?source=rss-348ebd5cdb70------2" />
+<meta property="og:url" content="https://bornunique911.medium.com/payatu-hiring-ctf-2022-challenges-writeup-87de06310e6d?source=rss-348ebd5cdb70------2" />
+<meta property="og:site_name" content="Bornunique911" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-10-16T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Payatu Hiring CTF 2022: Challenges Writeup" />
+<meta name="twitter:site" content="@bornunique911" />
+<meta name="twitter:creator" content="@Bornunique911" />
+<meta name="google-site-verification" content="google_meta_tag_verification" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Bornunique911"},"dateModified":"2022-12-03T18:40:13+05:30","datePublished":"2022-10-16T00:00:00+05:30","description":"Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2 Hello everyone, I hope you all are doing great things and learning&#39;s everyday just like me. So I hereby came with my new and fresh blog again on Payatu Hiring CTF challenges walkthroughs. I solved 8 challenges out of 30 challenges which consists of Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2, Catch Me If You Can and so on and I secured 12th rank. I will be walking you through the challenges from Web and Network category which consists the following : Web Challenges : Babysqli Stardust EasyCalc Network Challenges : Mistake-1 Mistake-2 Payatu Hiring CTF Platform (https://ctf.payatu.com/) Prizes For The Winners : Introduction : Timeline of the CTF : The CTF will start at 9:00 AM on 15th October 2022 and end at 9:00 PM (12 Hours) There are multiple tracks of challenges. Start with the one you are comfortable with and ride your way up to the top. Do not attack the CTF platform or deliberately perform actions that might lead to the platform/challenges being unavailable for other players. Rules : Any kind of flag sharing/cheating will lead to disqualification. Any request to consider allotment of points for challenges solved but flag not submitted will not be entertained. Winning / Being in the top list of the leaderboard will only help you land an interview with Payatu. You will have to clear the interviews to get the job offer. This is an individual event, and team participation is not allowed. Anyone can play the CTF, but the hiring is limited to only Indian Participants. Let’s begin the writeup first with web challenges. Let’s get started. Web Category :- Babysqli:- Babysqli Challenge Description Let’s start with Babysqli from Web challenge. First things first I visited the provided link to the challenge and I land at this page which is as under: Simple Login Page from http://babysqli.payatu.lol/ By exploring the website for quite sometime, I noticed that it is vulnerable to MySQL Injection by looking at the source code which is mentioned at the end of the page. Source Code for MySQL database So after looking at the source code the query field has equipped some filters which are as under : $query = &#39;SELECT * FROM users WHERE username=&quot;&#39;.$user.&#39;&quot; AND password=&quot;&#39;.$pass.&#39;&quot;&#39;; So if anyone who will run the payloads like this &#39; or 1 or &#39; admin&#39; || &#39;1&#39; == &#39;1 &#39; || &#39;1&#39;== &#39;1 will tend fail as it is opposed by the filters equipped. So I have two options to exploit MySQL either by using automated tool called sqlmap or manual injection. So I used sqlmap for exploiting this type of SQL injection. Firstly, I will enumerate forms by running following command : sqlmap -u http://babysqli.payatu.lol/ --forms Enumerating Forms Now, I took the next step to dump databases by running following command : sqlmap -u http://babysqli.payatu.lol/ --forms --dbs Enumerating Databases Now after enumerating databases, I have to enumerate how many tables are there in a particular database but there are 3 databases to choose so which one to choose is a question standing. So I choose &quot;babysqli&quot; database because I feel that it may contain juicy data to extract like users, passwords, etc. So, now I will enumerate tables of database &quot;babysqli&quot; with the following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli --tables Enumerating Tables Now, as there is only one table called &quot;users&quot; we can enumerate the columns for a particular table by the following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users --columns Enumerating columns Now, finally I will dump the data from the columns by following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users -C id,username,password --dump Got the password of all the users But unfortunately none of them have flag inside their accounts. So, I basically copied the payload from the sqlmap output and successfully logged into by pasting the following payload in the username and password field for the account and I found the flag from the source code. xYPs&quot; UNION ALL SELECT NULL,CONCAT(0x7178626b71,0x6478697349625a4d527266625861596455566c704b4c714f65684777674d737145747a614b6a6159,0x7176707171),NULL# Congratulations message for solving the challenge Finally flag for BabySqli challenge was captured Voila I have successfully captured the babysqli challenge flag with the help of sqlmap. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Stardust:- Stardust Challenge Description Let’s start with Stardust from Web challenge. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of http://stardust.payatu.lol/ By exploring the website for quite sometime, I noticed that there are 6 chapters for Dev Wars which points to the different location on the main page. Let’s say for example if I clicked Chapter 1 from the main page it goes to different location which is (http://stardust.payatu.lol/chapter?episode=the+phantom+feature) in case of Chapter 1 and so on and so forth. Now when I visited Chapter 1 link there was one parameter which was important to look at and that was &quot;episode&quot;. So by looking at the Chapter 1 link (http://stardust.payatu.lol/chapter?episode=the+phantom+feature) for sometime I noticed that it runs a episode of Chapter 1 and the page is at still showing the contents of the episode. Playing episode 1 from Chapter 1 So I decided that why not explore &quot;episode=&quot; parameter by giving &quot;&#123;&#123;9 * 9&#125;&#125;&quot;as payload and it gave the product of &quot;9 * 9&quot; which is 81 as output. Product of 9 multiplied by 9 So by observing this I thought that the &quot;episode&quot; is vulnerable to SSTI vulnerability aka Server Side Template Injection. So I decided to exploit it via some SSTI payloads. So I decided to use a very good writeup from HackIT CTF 2018 on ctftime.org published by the user kazkiti on SSTI payloads which he explained everything very nicely in detail manner on how to identify the vulnerability to how to get the flag at the end by exploiting SSTI. Little glance of the CTF writeup published by the user kazkiti on ctftime.org So first things first as I observed that the web application is vulnerable to SSTI, then I decided to follow along by reading the writeup thoroughly and I moved further with the first payload which is &quot;&#123;&#123;__self__.__doc__&#125;&#125;&quot; by appending it to after &quot;episode=&quot; parameter whether the web application is using Jinja2 or not. Voila it successfully gave me a Jinja2 error which is as under : Error confirms that it is Jinja2 running in the backend So after confirming that it’s Jinja2 I can either use HackTricks blog on SSTI payloads or the payloads which the writeup I discussed earlier have mentioned in their writeup. So, I will use the payloads which the writeup which I discussed earlier have mentioned as a weapon as it gave us an idea how an SSTI is successfully exploited step-by-step. So as per the writeup, I used the second payload which is &quot;&#123;&#123;self&#125;&#125;&quot; after &quot;episode=&quot; as under : Trying “&#123;&#123;self&#125;&#125;” as the second payload As I can observe here that it shows &lt;TemplateReference None&gt; as output when I typed &quot;&#123;&#123;self&#125;&#125;&quot;. So for more information, I would recommend to read the documentation on Jinja2 and a writeup where the same person who I have took the reference of has mentioned in their previous writeup. Moving along I passed the third payload which is &quot;&#123;&#123;config&#125;&#125;&quot; after &quot;episode=&quot; I got the following as follows : Passing &#123;&#123;config&#125;&#125; as the third payload Finally I have successfully captured the flag when I typed &quot;&#123;&#123;config&#125;&#125;&quot; as a parameter value. So the flag is as under : Finally flag for Stardust challenge was captured — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — EasyCalc:- EasyCalc Challenge Description Let’s start with EasyCalc from Web category. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of http://easy-calc.payatu.lol/ By exploring the website for quite sometime, I noticed that it’s a simple page which has a calculator functionality to compute simple operations such as addition, subtraction, division and multiplication and trigonometric operations such as sin, cos and tan. So I tried to google search the writeups of the any previous CTF’s if they have anything related to bypass this simple calculator functionality and I found some interesting results which are as under : Google Search Results for Simple Calculator CTF writeups So later on I decided why not I should check the source code of the page and so I checked the source code and there I found some script tags which contains the following code: JavaScript Code Also from the source code I found some important thing to note which is the input tag in which the value is nothing but I came across the word &quot;disabled&quot;. Interesting thing I noted here about why is disabled here. After sometime I thought that why not make some changes in the input tag by adding &quot;enabled=enabled&quot; by removing &quot;disabled&quot; from the input tag by inspecting the element as in the view page source we can’t make any changes and let’s see what we get. We got following as output : Removing disabled and adding enabled in the input tag And one other thing notice is that now I can type in the input whatever I want like alphabets,etc but it will throw an error because it requires a mathematical operations like 7+7, etc and not the random alphabets and special characters. Now here I was little bit stuck because I have read many writeups based on simple calc by googling the same. But afterwards I got one idea why not I should check Network tab for what’s happening behind the scenes. So I tried simple math addition between numbers and I got the following output in the Network Tab : So now it’s clear that I have to exploit nodejs whereby nodejs has a extensive math library called math.js. So ultimately I have to exploit math.js in short with some payloads which return output as &quot;[Object][object]&quot;. So I googled for math.js exploit on Google and I found this as output as google search results : I used https://jwlss.pw/mathjs for exploiting math.js library. So I read the context and applied the same to web application from the blog post. Now from the article I can relate that math.js has a vulnerability of Remote Code Execution so let’s get our hands dirty and exploit the math.js library through our web application and solve the challenge successfully. Also I noticed further that &quot;query=&quot;is vulnerable and so I can exploit it by using the payloads which was mentioned in the article which I have read earlier. Now I will make my hands dirty and exploit query field by passing this as payload &quot;cos.constructor(\\&quot;return process.env\\&quot;)()&quot; and let’s see what we get as output : Request for changing query field content Request after sending the payload in query field Response after sending payload in the query field Finally flag for EasyCalc was captured Voila we have successfully solved all the web challenges. Now it’s time to solve challenges from Network category. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Network Category :- Mistake-1:- Mistake -1 Challenge Description Let’s start with Mistake-1 from Network category. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of https://mistake.payatu.lol By exploring the website for quite sometime, I noticed that it’s a static page which seems like a normal portfolio page of a user. I quickly checked the functionality of the page whether any content is clickable or not and I found that some content is clickable and some isn’t. So I figured out that home page, about me, etc is clickable whereas when I click on social media handles like Twitter, Facebook, Google+ and Linkedin turns out to be unclickable as it is an unclickable content but interestingly I found that except for social media handles there also possess GitLab handle which points the link to the GitLab account of the user named Sad Detail. Clicking on social media handles such as Twitter,Facebook,Google+ and Linkedin turns out to be nothing interesting But apart from social handles,GitLab has a link to visit to https://gitlab.com/saddetail Let’s visit the GitLab link which points to user Sad Detail’s GitLab account. By visiting the user account I found that there is only one single repository which is his my-portfolio as it is also hosted on the website from which I came from. By visiting GitLab page,we got the GitLab user named Sad Detail The user named Sad Detail possess only one repository named my-portfolio in his GitLab account Overview of GitLab repository named my-portfolio Let’s explore my-portfolio repository of user Sad Detail, so I was greeted with these files and folders in his repository. So I got one idea that as GitHub and GitLab possess similar functionality of managing commits by maintaining commit logs so why not explore the history of the commit from the starting point. So I just clicked the repository name and then I clicked history and thus I was greeted with more commits which are older than the present one which I was currently on. Clicking on my-portfolio Clicking on history to view the other commits for the repository The following screenshot shows the order of commits that were created by the user Sad Detail for their my-portfolio repository. I noticed that one commit seems to be useful among 8 commits that were made in total. The commit that was interesting according to me was “damn, never thought people at NULLCON would crack it so easily. My security…” as I marked the keyword &quot;NULLCON&quot; in the commit description. Order of commits which are made for my-portfolio repository Luckily I got my instinct correct and it was an interesting commit with some nice changes made. Clicking on damn, never thought people at NULLCON would crack it so easily. My security consultant friends were right commit to look further what’s inside and what were the changes made After exploring the NULLCON keyword commit, I was greeted with some nice 6 deletions and 0 deletions in the index.html file. At first glance, we see that there is one index.html file which contains some interesting content with 6 deletions and 0 additions Looking closer to the index.html file, I found that there is some base64 encoded string commented in the file which might be useful. So I copied that string for future use in Sublime Text editor. Base64 encoded string Without wasting any time I spinned up CyberChef on the browser and I just pasted the string which I copied earlier into the input field with some proper formatting. Voila when I pasted the string I got a suggestion from a CyberChef that it is definitely a base64 encoded string which can be decoded as a normal string. Placing base64 encoded in CyberChef for decoding it After decoding base64 string After decoding the base64 encoded string, I got the following message as the output shown below: Message after decoding from base64 string Now what to do next after getting this message. So I first thought that this must be it for the challenge so I submitted the flag as &quot;flag&#123;take-a-few-pages-from-my-book&#125;&quot;. But sadly it was not as expected as in the challenge description there was some interesting note given by the challenge author and also it’s a Network category challenge so the flag might be incorrect in that respect. By reading the note mentioned in the challenge description, I again picked the two keywords which were Room no. 22 and Room no. 9922 which ultimately states that Room no.22 is under repair aka SSH Default port 22 is under repair whereas you can check Room no. 9922 instead states that it was an another SSH port in exception of SSH default port 22. Wait what! I was puzzled at that moment. So I just checked port 9922 real quick by visiting it by appending to the actual website which in turn result into like this as under : It was redirected to ssh version information and then it was a connection reset For further enumeration we can also check via nmap (Network Mapper Tool) use for scanning ports and services. Thus I concluded that port 9922 is a ssh port open for ssh login. Nmap result So I move further and tried to login via ssh. But wait what should be the credentials for ssh login? So I just visited my notes again what I have so far in my notes to be use for ssh login. So while reading I found that the message which I got at the time of decoding the base64 string via CyberChef was pointing somewhere around password. So I thought there is a password present in the message which I found in the following screenshot : Password for user Sad Detail found from one of GitLab commits So voila I made a username:password pair and thus I got &quot;saddetail:take-a-few-pages-from-my-book&quot; as a successful password pair and I achieved a successful login in a ssh session. Successful Login with the creds saddetail:take-a-few-pages-from-my-book ls command not found error as the shell is rbash After logging in,I tried to enumerate the file system for finding the flag by using directory listing command &quot;ls&quot; but it failed and it simply throws an error of command not found. So I was little stuck here on how to move further. Also I observed something weird from the command not found error that it is a restrictive bash shell as it throws an error when I typed &quot;ls&quot;in the terminal and not the normal bash shell. So I decided to take a reference from my writeup on Recovery room on TryHackMe where there was a similar scenario. GitHub - Bornunique911/THM-Recovery Taking TryHackMe room named Recovery writeup made by me as a reference It gives me an error as it is not a normal bash shell but a rbash shell aka restricted bash shell So by taking the reference from my writeup, I exited the ssh session and I tried to append &quot;/bin/bash&quot; in the ssh command shown in the screenshot above and it failed. ssh saddetail@mistake.payatu.lol -p 9922 &quot;/bin/bash&quot; So I got another idea like what if I try to run a directory listing command &quot;ls -la&quot; by appending it in the ssh command. ssh saddetail@mistake.payatu.lol -p 9922 “ls -la” Voila it got successful finally and I get the listing of the files and directories including flag.txt file. For further step, for capturing the Mistake-1 flag, I just append to the previous command &quot;ls -la;cat flag.txt&quot; ssh saddetail@mistake.payatu.lol -p 9922 “ls -la;cat flag.txt” It was successful when I tried directory listing of files and directories Also I got a flag file while directory listing Finally flag for Mistake-1 challenge was captured Voila after executing the above command, I successfully got the Mistake-1 flag. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Mistake-2 :- Mistake-2 Challenge Description As I captured the Mistake-1 flag, I moved further with Mistake-2 challenge from the Network category. Let’s start. In Mistake-1, I got the flag from the user’s home directory without entering into a ssh session. So I thought now in Mistake-2 challenge, I have to escalate the privileges to root. So I have to logged into a stable ssh session for privilege escalation as the ssh session shell is rbash. In simple words, I have to escape rbash shell in the ssh session to bash shell. So to do that I searched for all the possible results for rbash shell escaping via Google Search but none work except for one which is as under: rbash shell esacping Steps to escape rbash shell Successfully entered into a bash shell by the steps mentioned So as I have entered a bash shell then I can simply run &quot;sudo -l&quot; and the result for the same is as follows: Privilege Escalation To Root “sudo -l” output As I observed that SETENV is enabled,I can change the root user’s environment variables. Contents of script.py From the above script.py, I observed that it is a simple calculator. As I can change the environment of root user, let’s make our own python library and add it to the &quot;PATH&quot; variable for execution. Let’s change directory to &quot;/tmp&quot; . As os library is called first, so let’s craft it. Finally for Mistake-2 challenge was captured Voila I successfully rooted the challenge by using library hijacking for privilege escalation to root. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Thank you so much everyone for reading this blog till the end. Peace !!! — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — References :- GitHub - sqlmapproject/sqlmap: Automatic SQL injection and database takeover tooldvna/a9-using-components-with-known-vulnerability.md at master · appsecco/dvnaHow we exploited a remote execution vulnerability in math.jsCTFtime.org / HackIT CTF 2018 / Believer Case / WriteupCTFtime.org / TokyoWesterns CTF 4th 2018 / Shrine / WriteupSSTI (Server Side Template Injection) https://jinja.palletsprojects.com/en/2.11.x/api/#exceptions&lt;/ul&gt;Sad Detail · GitLabCyberChefhttps://tryhackme.com/room/recoveryGitHub - Bornunique911/THM-Recoveryrbash shell esacpingLinux Privilege Escalation: Python Library Hijacking - Hacking Articles","headline":"Payatu Hiring CTF 2022: Challenges Writeup","mainEntityOfPage":{"@type":"WebPage","@id":"https://bornunique911.medium.com/payatu-hiring-ctf-2022-challenges-writeup-87de06310e6d?source=rss-348ebd5cdb70------2"},"url":"https://bornunique911.medium.com/payatu-hiring-ctf-2022-challenges-writeup-87de06310e6d?source=rss-348ebd5cdb70------2"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+
+  <title>Payatu Hiring CTF 2022: Challenges Writeup | Bornunique911
+  </title>
+
+  <!--
+  The Favicons for Web, Android, Microsoft, and iOS (iPhone and iPad) Apps
+  Generated by: https://realfavicongenerator.net/
+-->
+
+
+
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png">
+<link rel="manifest" href="/assets/img/favicons/site.webmanifest">
+<link rel="shortcut icon" href="/assets/img/favicons/favicon.ico">
+<meta name="apple-mobile-web-app-title" content="Bornunique911">
+<meta name="application-name" content="Bornunique911">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml">
+<meta name="theme-color" content="#ffffff">
+
+
+  
+
+    
+      <link rel="preconnect" href="https://fonts.googleapis.com" >
+      <link rel="dns-prefetch" href="https://fonts.googleapis.com" >
+    
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link rel="dns-prefetch" href="https://fonts.gstatic.com" crossorigin>
+    
+      <link rel="preconnect" href="https://fonts.googleapis.com" >
+      <link rel="dns-prefetch" href="https://fonts.googleapis.com" >
+    
+      <link rel="preconnect" href="https://cdn.jsdelivr.net" >
+      <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" >
+    
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato&family=Source+Sans+Pro:wght@400;600;700;900&display=swap">
+
+  
+
+  <!-- GA -->
+  
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css">
+
+  <link rel="stylesheet" href="/assets/css/style.css">
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css">
+  
+
+  
+    <!-- Manific Popup -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/magnific-popup@1/dist/magnific-popup.min.css">
+  
+
+  <!-- JavaScript -->
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+
+  
+    <!--
+  Switch the mode between dark and light.
+-->
+
+<script type="text/javascript">
+  class ModeToggle {
+    static get MODE_KEY() { return "mode"; }
+    static get MODE_ATTR() { return "data-mode"; }
+    static get DARK_MODE() { return "dark"; }
+    static get LIGHT_MODE() { return "light"; }
+    static get ID() { return "mode-toggle"; }
+
+    constructor() {
+      if (this.hasMode) {
+        if (this.isDarkMode) {
+          if (!this.isSysDarkPrefer) {
+            this.setDark();
+          }
+        } else {
+          if (this.isSysDarkPrefer) {
+            this.setLight();
+          }
+        }
+      }
+
+      let self = this;
+
+      /* always follow the system prefers */
+      this.sysDarkPrefers.addEventListener("change", () => {
+        if (self.hasMode) {
+          if (self.isDarkMode) {
+            if (!self.isSysDarkPrefer) {
+              self.setDark();
+            }
+
+          } else {
+            if (self.isSysDarkPrefer) {
+              self.setLight();
+            }
+          }
+
+          self.clearMode();
+        }
+
+        self.notify();
+
+      });
+
+    } /* constructor() */
+
+    get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); }
+
+    get isSysDarkPrefer() { return this.sysDarkPrefers.matches; }
+
+    get isDarkMode() { return this.mode === ModeToggle.DARK_MODE; }
+
+    get isLightMode() { return this.mode === ModeToggle.LIGHT_MODE; }
+
+    get hasMode() { return this.mode != null; }
+
+    get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); }
+
+    /* get the current mode on screen */
+    get modeStatus() {
+      if (this.isDarkMode
+        || (!this.hasMode && this.isSysDarkPrefer)) {
+        return ModeToggle.DARK_MODE;
+      } else {
+        return ModeToggle.LIGHT_MODE;
+      }
+    }
+
+    setDark() {
+      $('html').attr(ModeToggle.MODE_ATTR, ModeToggle.DARK_MODE);
+      sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE);
+    }
+
+    setLight() {
+      $('html').attr(ModeToggle.MODE_ATTR, ModeToggle.LIGHT_MODE);
+      sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE);
+    }
+
+    clearMode() {
+      $('html').removeAttr(ModeToggle.MODE_ATTR);
+      sessionStorage.removeItem(ModeToggle.MODE_KEY);
+    }
+
+    /* Notify another plugins that the theme mode has changed */
+    notify() {
+      window.postMessage({
+        direction: ModeToggle.ID,
+        message: this.modeStatus
+      }, "*");
+    }
+
+  } /* ModeToggle */
+
+  const toggle = new ModeToggle();
+
+  function flipMode() {
+    if (toggle.hasMode) {
+      if (toggle.isSysDarkPrefer) {
+        if (toggle.isLightMode) {
+          toggle.clearMode();
+        } else {
+          toggle.setLight();
+        }
+
+      } else {
+        if (toggle.isDarkMode) {
+          toggle.clearMode();
+        } else {
+          toggle.setDark();
+        }
+      }
+
+    } else {
+      if (toggle.isSysDarkPrefer) {
+        toggle.setLight();
+      } else {
+        toggle.setDark();
+      }
+    }
+
+    toggle.notify();
+
+  } /* flipMode() */
+
+</script>
+
+  
+</head>
+
+
+  <body data-spy="scroll" data-target="#toc" data-topbar-visible="true">
+
+    <!--
+  The Side Bar
+-->
+
+<div id="sidebar" class="d-flex flex-column align-items-end">
+  <div class="profile-wrapper text-center">
+    <div id="avatar">
+      <a href="/" class="mx-auto">
+        
+          
+          <img src="https://i.pinimg.com/originals/e2/33/ce/e233ce39bf5316b0a9ed17b57c1c6df7.jpg" alt="avatar" onerror="this.style.display='none'">
+        
+      </a>
+    </div>
+
+    <div class="site-title">
+      <a href="/">Bornunique911</a>
+    </div>
+    <div class="site-subtitle font-italic">Cybersecurity Enthusiast and a CTF player</div>
+
+  </div><!-- .profile-wrapper -->
+
+  <ul class="w-100">
+
+    <!-- home -->
+    <li class="nav-item">
+      <a href="/" class="nav-link">
+        <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i>
+        <span>HOME</span>
+      </a>
+    </li>
+    <!-- the real tabs -->
+    
+    <li class="nav-item">
+      <a href="/categories/" class="nav-link">
+        <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i>
+        
+
+        <span>CATEGORIES</span>
+      </a>
+    </li> <!-- .nav-item -->
+    
+    <li class="nav-item">
+      <a href="/tags/" class="nav-link">
+        <i class="fa-fw fas fa-tag ml-xl-3 mr-xl-3 unloaded"></i>
+        
+
+        <span>TAGS</span>
+      </a>
+    </li> <!-- .nav-item -->
+    
+    <li class="nav-item">
+      <a href="/archives/" class="nav-link">
+        <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i>
+        
+
+        <span>ARCHIVES</span>
+      </a>
+    </li> <!-- .nav-item -->
+    
+    <li class="nav-item">
+      <a href="/about/" class="nav-link">
+        <i class="fa-fw fas fa-info-circle ml-xl-3 mr-xl-3 unloaded"></i>
+        
+
+        <span>ABOUT</span>
+      </a>
+    </li> <!-- .nav-item -->
+    
+
+  </ul> <!-- ul.nav.flex-column -->
+
+  <div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center align-items-center">
+
+    
+      <button class="mode-toggle btn" aria-label="Switch Mode">
+        <i class="fas fa-adjust"></i>
+      </button>
+
+      
+        <span class="icon-border"></span>
+      
+    
+
+    
+      
+
+      
+      <a href="https://github.com/Bornunique911" aria-label="github"
+        target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+      
+
+    
+      
+
+      
+      <a href="https://twitter.com/bornunique911" aria-label="twitter"
+        target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+      
+
+    
+      
+
+      
+      <a href="
+          javascript:location.href = 'mailto:' + ['',''].join('@')" aria-label="email"
+        >
+        <i class="fas fa-envelope"></i>
+      </a>
+      
+
+    
+      
+
+      
+      <a href="/feed.xml" aria-label="rss"
+        >
+        <i class="fas fa-rss"></i>
+      </a>
+      
+
+    
+
+  </div> <!-- .sidebar-bottom -->
+
+</div><!-- #sidebar -->
+
+
+    <!--
+  The Top Bar
+-->
+
+<div id="topbar-wrapper">
+  <div id="topbar" class="container d-flex align-items-center justify-content-between h-100 pl-3 pr-3 pl-md-4 pr-md-4">
+    <span id="breadcrumb">
+
+    
+
+    
+
+      
+
+        
+          <span>
+            <a href="/">
+              Home
+            </a>
+          </span>
+
+        
+
+      
+
+        
+
+      
+
+        
+
+          
+            <span>Payatu Hiring CTF 2022: Challenges Writeup</span>
+          
+
+        
+
+      
+
+    
+
+    </span><!-- endof #breadcrumb -->
+
+    <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i>
+
+    <div id="topbar-title">
+      Post
+    </div>
+
+    <i id="search-trigger" class="fas fa-search fa-fw"></i>
+    <span id="search-wrapper" class="align-items-center">
+      <i class="fas fa-search fa-fw"></i>
+      <input class="form-control" id="search-input" type="search"
+        aria-label="search" autocomplete="off" placeholder="Search...">
+    </span>
+    <span id="search-cancel" >Cancel</span>
+  </div>
+
+</div>
+
+
+    <div id="main-wrapper" class="d-flex justify-content-center">
+      <div id="main" class="container pl-xl-4 pr-xl-4">
+        
+
+
+
+
+
+<div class="row">
+
+  <!-- core -->
+  <div id="core-wrapper" class="col-12 col-lg-11 col-xl-9 pr-xl-4">
+    <div class="post pl-1 pr-1 pl-md-2 pr-md-2">
+
+    
+
+    
+      
+      
+        <!--
+  Refactor the HTML structure.
+-->
+
+
+
+<!--
+  In order to allow a wide table to scroll horizontally,
+  we suround the markdown table with `<div class="table-wrapper">` and `</div>`
+-->
+
+
+
+<!--
+  Fixed kramdown code highlight rendering:
+  https://github.com/penibelst/jekyll-compress-html/issues/101
+  https://github.com/penibelst/jekyll-compress-html/issues/71#issuecomment-188144901
+-->
+
+
+
+<!-- Change the icon of checkbox -->
+
+
+<!-- images -->
+
+
+
+
+  
+  
+
+  
+    
+      
+      
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+
+    
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+    
+      
+      
+
+      
+      
+
+      
+
+      
+        
+
+    
+      
+
+        <!-- Add CDN URL -->
+        
+
+        <!-- Add image path -->
+        
+
+        
+        
+
+      
+
+      <!-- lazy-load images <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+
+      
+
+    
+
+    <!-- Add SVG placehoder to prevent layout reflow -->
+
+    
+
+    <!-- Bypass the HTML-proofer test -->
+    
+
+    
+
+  
+
+  
+
+
+
+<!-- Add header for code snippets -->
+
+
+
+<!-- Create heading anchors -->
+
+
+
+
+
+  
+  
+
+  
+
+  
+  
+
+  
+
+  
+  
+
+  
+
+  
+  
+
+  
+
+
+
+
+<!-- Wrap prompt element of blockquote with the <div> tag -->
+
+
+
+
+
+
+
+<!-- return -->
+
+<h1 data-toc-skip>Payatu Hiring CTF 2022: Challenges Writeup</h1>
+
+<div class="post-meta text-muted">
+    <!-- published date -->
+    <span>
+      Posted
+      <!--
+  Date format snippet
+  See: ${JS_ROOT}/utils/locale-dateime.js
+-->
+
+
+
+
+
+<em class=""
+    data-ts="1665858600"
+    data-df="ll"
+    data-toggle="tooltip" data-placement="bottom">
+  Oct 16, 2022
+</em>
+
+    </span>
+
+    <!-- lastmod date -->
+    
+    <span>
+      Updated
+      <!--
+  Date format snippet
+  See: ${JS_ROOT}/utils/locale-dateime.js
+-->
+
+
+
+
+
+<em class=""
+    data-ts="1670073013"
+    data-df="ll"
+    data-toggle="tooltip" data-placement="bottom">
+  Dec  3, 2022
+</em>
+
+    </span>
+    
+
+  
+
+  <div class="d-flex justify-content-between">
+    <!-- author(s) -->
+    <span>
+      
+
+      By
+
+      <em>
+      
+        <a href="https://twitter.com/bornunique911">Bornunique911</a>
+      
+      </em>
+    </span>
+
+    <div>
+      <!-- page views -->
+      
+
+      <!-- read time -->
+      <!--
+  Calculate the post's reading time, and display the word count in tooltip
+ -->
+
+
+
+<!-- words per minute  -->
+
+
+
+
+
+
+
+
+
+
+<!-- return element -->
+<span class="readtime" data-toggle="tooltip" data-placement="bottom"
+  title="3178 words">
+  <em>17 min</em> read</span>
+
+    </div>
+
+  </div> <!-- .d-flex -->
+
+</div> <!-- .post-meta -->
+
+<div class="post-content">
+  <figure><img alt="" data-src="https://cdn-images-1.medium.com/max/320/0*IAiIhxEN-y5LT_VU.png" data-proofer-ignore></figure><h4><strong><em>Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2</em></strong></h4><p>Hello everyone, I hope you all are doing great things and learning&#39;s everyday just like me. So I hereby came with my new and fresh blog again on Payatu Hiring CTF challenges walkthroughs. I solved 8 challenges out of 30 challenges which consists of Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2, Catch Me If You Can and so on and I secured 12th rank. I will be walking you through the challenges from Web and Network category which consists the following :</p><blockquote><strong><em>Web Challenges :</em></strong></blockquote><p>Babysqli</p><p>Stardust</p><p>EasyCalc</p><blockquote><strong><em>Network Challenges :</em></strong></blockquote><p>Mistake-1</p><p>Mistake-2</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*FmTTOJ9N0hDcs8gs-_XbQQ.png" data-proofer-ignore><figcaption>Payatu Hiring CTF Platform (<a href="https://ctf.payatu.com/">https://ctf.payatu.com/</a>)</figcaption></figure><blockquote><strong>Prizes For The Winners :</strong></blockquote><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/892/1*RYjxBmBmSu5k6ZVe3-J6nw.png" data-proofer-ignore></figure><h3>Introduction :</h3><p><strong><em>Timeline of the CTF :</em></strong></p><blockquote>The CTF will start at <strong>9:00 AM on 15th October 2022 and end at 9:00 PM</strong> (12 Hours)</blockquote><blockquote>There are multiple tracks of challenges. Start with the one you are comfortable with and ride your way up to the top.</blockquote><blockquote>Do not attack the CTF platform or deliberately perform actions that might lead to the platform/challenges being unavailable for other players.</blockquote><p><strong><em>Rules</em></strong> :</p><blockquote>Any kind of flag sharing/cheating will lead to disqualification.</blockquote><blockquote>Any request to consider allotment of points for challenges solved but flag not submitted will not be entertained.</blockquote><blockquote>Winning / Being in the top list of the leaderboard will only help you land an interview with Payatu. You will have to clear the interviews to get the job offer.</blockquote><blockquote>This is an individual event, and team participation is not allowed.</blockquote><blockquote>Anyone can play the CTF, but the hiring is limited to only Indian Participants.</blockquote><p><strong><em>Let’s begin the writeup first with web challenges. Let’s get started.</em></strong></p><blockquote><strong><em>Web Category :-</em></strong></blockquote><h4><strong><em>Babysqli</em></strong>:-</h4><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/545/1*j9VWdyEC-IB68lJ1jdF8pA.png" data-proofer-ignore><figcaption>Babysqli Challenge Description</figcaption></figure><p>Let’s start with <strong>Babysqli</strong> from <strong>Web challenge</strong>. First things first I visited the provided link to the challenge and I land at this page which is as under:</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*efQShB88ixaWaOn3sj-2Ug.png" data-proofer-ignore><figcaption>Simple Login Page from <a href="http://babysqli.payatu.lol/">http://babysqli.payatu.lol/</a></figcaption></figure><p>By exploring the website for quite sometime, I noticed that it is vulnerable to MySQL Injection by looking at the source code which is mentioned at the end of the page.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*Lm2099G8kKeJVjttKANikw.png" data-proofer-ignore><figcaption>Source Code for MySQL database</figcaption></figure><p>So after looking at the source code the query field has equipped some filters which are as under :</p><pre>$query = &#39;SELECT * FROM users WHERE username=&quot;&#39;.$user.&#39;&quot; AND password=&quot;&#39;.$pass.&#39;&quot;&#39;;</pre><p>So if anyone who will run the payloads like this</p><pre>&#39; or 1 or &#39;</pre><pre>admin&#39; || &#39;1&#39; == &#39;1 </pre><pre>&#39; || &#39;1&#39;== &#39;1</pre><p>will tend fail as it is opposed by the filters equipped. So I have two options to exploit MySQL either by using automated tool called <a href="https://github.com/sqlmapproject/sqlmap"><strong><em>sqlmap</em></strong></a> or manual injection. So I used <a href="https://github.com/sqlmapproject/sqlmap"><strong><em>sqlmap</em></strong></a> for exploiting this type of SQL injection.</p><p>Firstly, I will enumerate forms by running following command :</p><pre>sqlmap -u http://babysqli.payatu.lol/ --forms</pre><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*4PmjmMt2CPZ9_I7iioGVXQ.png" data-proofer-ignore><figcaption>Enumerating Forms</figcaption></figure><p>Now, I took the next step to dump databases by running following command :</p><pre>sqlmap -u http://babysqli.payatu.lol/ --forms --dbs</pre><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*13FmJw2mo6uKMw1LTONjgg.png" data-proofer-ignore><figcaption>Enumerating Databases</figcaption></figure><p>Now after enumerating databases, I have to enumerate how many tables are there in a particular database but there are 3 databases to choose so which one to choose is a question standing. So I choose &quot;babysqli&quot;<strong><em> </em></strong>database because I feel that it may contain juicy data to extract like users, passwords, etc. So, now I will enumerate tables of database &quot;babysqli&quot;<strong><em> </em></strong>with the following command :</p><pre>sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli --tables</pre><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*SPE6Bq0vVuuOx0uFX34pZA.png" data-proofer-ignore><figcaption>Enumerating Tables</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*SPE6Bq0vVuuOx0uFX34pZA.png" data-proofer-ignore></figure><p>Now, as there is only one table called &quot;users&quot;<strong><em> </em></strong>we can enumerate the columns for a particular table by the following command :</p><pre>sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users --columns</pre><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*PcjLe1bCeDiaNcYe-iGEMA.png" data-proofer-ignore><figcaption>Enumerating columns</figcaption></figure><p>Now, finally I will dump the data from the columns by following command :</p><pre>sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users -C id,username,password --dump</pre><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*hX5C52VZCCC4QVAaKQ1ImA.png" data-proofer-ignore><figcaption>Got the password of all the users</figcaption></figure><p>But unfortunately none of them have flag inside their accounts. So, I basically copied the payload from the <a href="https://github.com/sqlmapproject/sqlmap"><strong><em>sqlmap</em></strong></a> output and successfully logged into by pasting the following payload in the username and password field for the account and I found the flag from the source code.</p><pre>xYPs&quot; UNION ALL SELECT NULL,CONCAT(0x7178626b71,0x6478697349625a4d527266625861596455566c704b4c714f65684777674d737145747a614b6a6159,0x7176707171),NULL#</pre><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*7sj2qWsIwC0uGGbBPOXs7A.png" data-proofer-ignore><figcaption>Congratulations message for solving the challenge</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*jUSFjEYY-NrJnGIDndCFnw.png" data-proofer-ignore><figcaption>Finally flag for BabySqli challenge was captured</figcaption></figure><p>Voila I have successfully captured the babysqli challenge flag with the help of sqlmap.</p><p>— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —</p><h4>Stardust:-</h4><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/543/1*KbdUKq_70o7vu8rsODVDsQ.png" data-proofer-ignore><figcaption>Stardust Challenge Description</figcaption></figure><p>Let’s start with <strong>Stardust</strong> from <strong>Web challenge</strong>. First things first I visited the provided link to the challenge and I land at this page which is as under:</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*QsHrJq1OFEQ777bX2LM86Q.png" data-proofer-ignore><figcaption>Landing page of <a href="http://stardust.payatu.lol/">http://stardust.payatu.lol/</a></figcaption></figure><p>By exploring the website for quite sometime, I noticed that there are 6 chapters for Dev Wars which points to the different location on the main page. Let’s say for example if I clicked Chapter 1 from the main page it goes to different location which is (<a href="http://stardust.payatu.lol/chapter?episode=the+phantom+feature">http://stardust.payatu.lol/chapter?episode=the+phantom+feature</a>) in case of Chapter 1 and so on and so forth. Now when I visited Chapter 1 link there was one parameter which was important to look at and that was &quot;episode&quot;<strong><em>. </em></strong>So by looking at the Chapter 1 link (<a href="http://stardust.payatu.lol/chapter?episode=the+phantom+feature">http://stardust.payatu.lol/chapter?episode=the+phantom+feature</a>)</p><p>for sometime I noticed that it runs a episode of Chapter 1 and the page is at still showing the contents of the episode.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*_xsTDqyykYowfE0h0EbOnA.png" data-proofer-ignore><figcaption>Playing episode 1 from Chapter 1</figcaption></figure><p>So I decided that why not explore &quot;episode=&quot; parameter by giving &quot;&#123;&#123;9 * 9&#125;&#125;&quot;as payload and it gave the product of &quot;9 * 9&quot; which is 81 as output.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*WaB-8VpxvvDTMNf2-FqQ7A.png" data-proofer-ignore><figcaption>Product of 9 multiplied by 9</figcaption></figure><p>So by observing this I thought that the &quot;episode&quot; is vulnerable to <strong><em>SSTI</em></strong> vulnerability aka <strong><em>Server Side Template Injection</em></strong>. So I decided to exploit it via some SSTI payloads. So I decided to use a very good <a href="https://ctftime.org/writeup/11014"><strong><em>writeup</em></strong></a> from <a href="https://ctftime.org/event/672"><strong><em>HackIT CTF 2018</em></strong></a> on <a href="https://ctftime.org"><strong><em>ctftime.org</em></strong></a> published by the user <a href="https://ctftime.org/user/24696"><strong><em>kazkiti</em></strong></a><strong><em> </em></strong>on SSTI payloads which he explained everything very nicely in detail manner on how to identify the vulnerability to how to get the flag at the end by exploiting SSTI.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*zz5c-ak3LcuqQbVZi4xY-A.png" data-proofer-ignore><figcaption>Little glance of the CTF writeup published by the user <a href="https://ctftime.org/user/24696"><strong>kazkiti</strong></a><strong> </strong>on<strong> </strong><a href="https://ctftime.org"><strong>ctftime.org</strong></a></figcaption></figure><p>So first things first as I observed that the web application is vulnerable to SSTI, then I decided to follow along by reading the <a href="https://ctftime.org/writeup/11014"><strong><em>writeup</em></strong></a> thoroughly and</p><p>I moved further with the first payload which is &quot;&#123;&#123;__self__.__doc__&#125;&#125;&quot; by appending it to<strong><em> </em></strong>after<strong><em> </em></strong>&quot;episode=&quot; parameter whether the web application is using Jinja2 or not. Voila it successfully gave me a <strong><em>Jinja2</em></strong> error which is as under :</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*LgoFMS7UQBFWt1dOxTWoQQ.png" data-proofer-ignore><figcaption>Error confirms that it is Jinja2 running in the backend</figcaption></figure><p>So after confirming that it’s <strong><em>Jinja2</em></strong> I can either use <a href="https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection"><strong><em>HackTricks</em></strong></a> blog on SSTI payloads or the payloads which the <a href="https://ctftime.org/writeup/11014"><strong><em>writeup</em></strong></a> I discussed earlier have mentioned in their <a href="https://ctftime.org/writeup/11014"><strong><em>writeup</em></strong></a>. So, I will use the payloads<strong><em> </em></strong>which the<strong><em> </em></strong><a href="https://ctftime.org/writeup/11014"><strong><em>writeup</em></strong></a> which I discussed earlier have mentioned as a weapon as it gave us an idea how an SSTI is successfully exploited step-by-step. So as per the <a href="https://ctftime.org/writeup/11014"><strong><em>writeup</em></strong></a>, I used the second payload which is &quot;&#123;&#123;self&#125;&#125;&quot;<strong><em> </em></strong>after &quot;episode=&quot; as under :</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*EMAA8cjDMtyyL2ak5hLtlg.png" data-proofer-ignore><figcaption>Trying <strong>“&#123;&#123;self&#125;&#125;” as the second payload</strong></figcaption></figure><p>As I can observe here that it shows <strong><em>&lt;TemplateReference None&gt; </em></strong>as output when I typed &quot;&#123;&#123;self&#125;&#125;&quot;. So for more information, I would recommend to read the <a href="https://jinja.palletsprojects.com/en/2.11.x/api/"><strong><em>documentation</em></strong></a> on <a href="https://jinja.palletsprojects.com/en/2.11.x/api/#exceptions"><strong><em>Jinja2</em></strong></a> and a <a href="https://ctftime.org/writeup/10895"><strong><em>writeup</em></strong></a> where the same person who I have took the reference of has mentioned in their previous <a href="https://ctftime.org/writeup/10895"><strong><em>writeup</em></strong></a>.</p><p>Moving along I passed the third payload which is &quot;&#123;&#123;config&#125;&#125;&quot;<strong><em> </em></strong>after<strong><em> </em></strong>&quot;episode=&quot;<strong><em> </em></strong>I got the following as follows :</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*7OezV23RetZP3l-UqlbPQw.png" data-proofer-ignore><figcaption>Passing <strong>&#123;&#123;config&#125;&#125; </strong>as the third payload</figcaption></figure><p>Finally I have successfully captured the flag when I typed<strong><em> </em></strong>&quot;&#123;&#123;config&#125;&#125;&quot;<strong><em> </em></strong>as a parameter value. So the flag is as under :</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*AsReEuG_kLZIYUtRYlFx1Q.png" data-proofer-ignore><figcaption>Finally flag for Stardust challenge was captured</figcaption></figure><p>— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —</p><h4>EasyCalc:-</h4><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/543/1*76bUSzJb1LBPBQ0ryWfvgw.png" data-proofer-ignore><figcaption>EasyCalc Challenge Description</figcaption></figure><p>Let’s start with <strong>EasyCalc</strong> from <strong>Web category</strong>. First things first I visited the provided link to the challenge and I land at this page which is as under:</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*49EuXdNY9Kt4C8WBwAMqoQ.png" data-proofer-ignore><figcaption>Landing page of <a href="http://easy-calc.payatu.lol/">http://easy-calc.payatu.lol/</a></figcaption></figure><p>By exploring the website for quite sometime, I noticed that it’s a simple page which has a calculator functionality to compute simple operations such as <strong>addition</strong>, <strong>subtraction</strong>, <strong>division</strong> and <strong>multiplication</strong> and trigonometric operations such as <strong>sin</strong>, <strong>cos</strong> and <strong>tan</strong>.</p><p>So I tried to google search the writeups of the any previous CTF’s if they have anything related to bypass this simple calculator functionality and I found some interesting results which are as under :</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*pDRWSn2d-UiwK80uaj3K4A.png" data-proofer-ignore><figcaption>Google Search Results for Simple Calculator CTF writeups</figcaption></figure><p>So later on I decided why not I should check the source code of the page and so I checked the source code and there I found some script tags which contains the following code:</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*FRhQMpLYdvp8ddezQhCfIQ.png" data-proofer-ignore><figcaption>JavaScript Code</figcaption></figure><p>Also from the source code I found some important thing to note which is the input tag in which the value is nothing but I came across the word &quot;disabled&quot;.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*n-ZUgXYCIDTwACSj4dNO8w.png" data-proofer-ignore><figcaption>Interesting thing I noted here about why is disabled here.</figcaption></figure><p>After sometime I thought that why not make some changes in the input tag by adding &quot;enabled=enabled&quot;<strong><em> </em></strong>by removing<strong><em> </em></strong>&quot;disabled&quot;<strong><em> </em></strong>from<strong><em> </em></strong><em>the input tag by inspecting the element as in the view page source we can’t make any changes and let’s see what we get. We got following as output :</em></p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*d-Ft3pVj_ouwOYGoqd9XLA.png" data-proofer-ignore><figcaption>Removing disabled and adding enabled in the input tag</figcaption></figure><p>And one other thing notice is that now I can type in the input whatever I want like alphabets,etc but it will throw an error because it requires a mathematical operations like <strong>7+7</strong>, etc and not the random alphabets and special characters.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*juM6oUT_Iu9EuzGuyde76w.png" data-proofer-ignore></figure><p>Now here I was little bit stuck because I have read many writeups based on simple calc by googling the same. But afterwards I got one idea why not I should check Network tab for what’s happening behind the scenes. So I tried simple math addition between numbers and I got the following output in the Network Tab :</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*SigS10bZS_TARUMZAteIfw.png" data-proofer-ignore></figure><p>So now it’s clear that I have to exploit nodejs whereby nodejs has a extensive math library called <strong>math.js</strong>. So ultimately I have to exploit <strong>math.js</strong> in short with some payloads which return output as &quot;[Object][object]&quot;. So I googled for <strong>math.js</strong> exploit on Google and I found this as output as google search results :</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*ehEP6CODZcR101zY-vsPaw.png" data-proofer-ignore></figure><p>I used <a href="https://jwlss.pw/mathjs/">https://jwlss.pw/mathjs</a> for exploiting <strong>math.js</strong> library. So I read the context and applied the same to web application from the blog post. Now from the article I can relate that <strong>math.js</strong> has a vulnerability of Remote Code Execution so let’s get our hands dirty and exploit the <strong>math.js</strong> library through our web application and solve the challenge successfully. Also I noticed further that &quot;query=&quot;is vulnerable and so I can exploit it by using the payloads which was mentioned in the article which I have read earlier.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*BU6i_4Yonu4Jw9cwGL8vqA.png" data-proofer-ignore></figure><p>Now I will make my hands dirty and exploit query field by passing this as payload &quot;cos.constructor(\&quot;return process.env\&quot;)()&quot; and let’s see what we get as output :</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*LrT3B7jCEDmC6WEN6IY6Cg.png" data-proofer-ignore><figcaption>Request for changing query field content</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*xLoIaOYRTuT40YMceerCMA.png" data-proofer-ignore><figcaption>Request after sending the payload in query field</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*h0Pw0D7ihPd7pe5AsRBMSw.png" data-proofer-ignore><figcaption>Response after sending payload in the query field</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*MCsJMeN7QUw5nH3mLvZEpw.png" data-proofer-ignore><figcaption>Finally flag for EasyCalc was captured</figcaption></figure><p>Voila we have successfully solved all the web challenges. Now it’s time to solve challenges from Network category.</p><p>— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —</p><blockquote><strong><em>Network Category :-</em></strong></blockquote><h4><strong><em>Mistake-1:-</em></strong></h4><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/544/1*PBVhGeIjirqNpziX8NQb0w.png" data-proofer-ignore><figcaption>Mistake -1 Challenge Description</figcaption></figure><p>Let’s start with <strong>Mistake-1</strong> from <strong>Network category</strong>. First things first I visited the provided link to the challenge and I land at this page which is as under:</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*IeG-vCUeLVxbvy-iRdeB1A.png" data-proofer-ignore><figcaption>Landing page of <a href="https://mistake.payatu.lol">https://mistake.payatu.lol</a></figcaption></figure><p>By exploring the website for quite sometime, I noticed that it’s a static page which seems like a normal portfolio page of a user. I quickly checked the functionality of the page whether any content is clickable or not and I found that some content is clickable and some isn’t. So I figured out that home page, about me, etc is clickable whereas when I click on social media handles like Twitter, Facebook, Google+ and Linkedin turns out to be unclickable as it is an unclickable content but interestingly I found that except for social media handles there also possess GitLab handle which points the link to the GitLab account of the user named <strong>Sad Detail</strong>.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*fPDzUZB-WfdGiO32RfmoCQ.png" data-proofer-ignore><figcaption>Clicking on social media handles such as Twitter,Facebook,Google+ and Linkedin turns out to be nothing interesting</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*yI0UAIkByzTpCjT7QEnLbw.png" data-proofer-ignore><figcaption>But apart from social handles,GitLab has a link to visit to <a href="https://gitlab.com/saddetail">https://gitlab.com/saddetail</a></figcaption></figure><p>Let’s visit the GitLab link which points to user<strong> Sad Detail’</strong>s GitLab account. By visiting the user account I found that there is only one single repository which is his my-portfolio as it is also hosted on the website from which I came from.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*WXlpEsOoKcRJTXT4y72xhw.png" data-proofer-ignore><figcaption>By visiting GitLab page,we got the GitLab user named Sad Detail</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*WXlpEsOoKcRJTXT4y72xhw.png" data-proofer-ignore><figcaption>The user named Sad Detail possess only one repository named my-portfolio in his GitLab account</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*OxV8sDJJ7PGjT7bxPbOsiw.png" data-proofer-ignore><figcaption>Overview of GitLab repository named my-portfolio</figcaption></figure><p>Let’s explore my-portfolio repository of user<strong> Sad Detail</strong>, so I was greeted with these files and folders in his repository. So I got one idea that as GitHub and GitLab possess similar functionality of managing commits by maintaining commit logs so why not explore the history of the commit from the starting point. So I just clicked the repository name and then I clicked history and thus I was greeted with more commits which are older than the present one which I was currently on.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*fKrpXZj0Whrobw-TopqQwA.png" data-proofer-ignore><figcaption>Clicking on my-portfolio</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*KefGPmsClf6SS_wWhB4Img.png" data-proofer-ignore><figcaption>Clicking on history to view the other commits for the repository</figcaption></figure><p>The following screenshot shows the order of commits that were created by the user <strong>Sad Detail</strong> for their my-portfolio repository. I noticed that one commit seems to be useful among 8 commits that were made in total. The commit that was interesting according to me was “damn, never thought people at NULLCON would crack it so easily. My security…” as I marked the keyword &quot;NULLCON&quot; in the commit description.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*-t1he57o2IKpzvgrkXcR0Q.png" data-proofer-ignore><figcaption>Order of commits which are made for my-portfolio repository</figcaption></figure><p>Luckily I got my instinct correct and it was an interesting commit with some nice changes made.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*--8vHA8PTvKxnSpO1QvBdw.png" data-proofer-ignore><figcaption>Clicking on damn, never thought people at NULLCON would crack it so easily. My security consultant friends were right commit to look further what’s inside and what were the changes made</figcaption></figure><p>After exploring the <strong>NULLCON</strong> keyword commit, I was greeted with some nice 6 deletions and 0 deletions in the index.html file.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*x7K65HUOwgzfVoKL6EKIWQ.png" data-proofer-ignore><figcaption>At first glance, we see that there is one index.html file which contains some interesting content with 6 deletions and 0 additions</figcaption></figure><p>Looking closer to the <strong>index.html</strong> file, I found that there is some base64 encoded string commented in the file which might be useful. So I copied that string for future use in Sublime Text editor.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*0dPgbuR3W_AHkx3zobc-aw.png" data-proofer-ignore><figcaption>Base64 encoded string</figcaption></figure><p>Without wasting any time I spinned up <strong>CyberChef</strong> on the browser and I just pasted the string which I copied earlier into the input field with some proper formatting. Voila when I pasted the string I got a suggestion from a <strong>CyberChef</strong> that it is definitely a <strong>base64 encoded string</strong> which can be decoded as a normal string.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*Mr5eQ3FCArNZ33IYFKpxNg.png" data-proofer-ignore><figcaption>Placing base64 encoded in CyberChef for decoding it</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*t1bAFyKUnIXkXqbkceNGvA.png" data-proofer-ignore><figcaption>After decoding base64 string</figcaption></figure><p>After decoding the <strong>base64 encoded string</strong>, I got the following message as the output shown below:</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/970/1*sdwkWYAsTuhtOo0BQa-_Tw.png" data-proofer-ignore><figcaption>Message after decoding from base64 string</figcaption></figure><p>Now what to do next after getting this message. So I first thought that this must be it for the challenge so I submitted the flag as &quot;flag&#123;take-a-few-pages-from-my-book&#125;&quot;. But sadly it was not as expected as in the challenge description there was some interesting note given by the challenge author and also it’s a Network category challenge so the flag might be incorrect in that respect.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/544/1*PBVhGeIjirqNpziX8NQb0w.png" data-proofer-ignore></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/544/1*Mba6qzWtJraGpNx37KBkNQ.png" data-proofer-ignore></figure><p>By reading the note mentioned in the challenge description, I again picked the two keywords which were <strong>Room no. 22</strong> and <strong>Room no. 9922</strong> which ultimately states that <strong>Room no.22</strong> is under repair aka <strong>SSH</strong> Default <strong>port 22</strong> is under repair whereas you can check <strong>Room no. 9922</strong> instead states that it was an another <strong>SSH</strong> port in exception of <strong>SSH</strong> default <strong>port 22</strong>. Wait what! I was puzzled at that moment. So I just checked <strong>port 9922</strong> real quick by visiting it by appending to the actual website which in turn result into like this as under :</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*TCGuhvT52pFwiqQrxiucqg.png" data-proofer-ignore><figcaption>It was redirected to ssh version information and then it was a connection reset</figcaption></figure><p>For further enumeration we can also check via <strong>nmap</strong> (<strong>Network Mapper Tool</strong>) use for scanning ports and services. Thus I concluded that <strong>port 9922</strong> is a ssh port open for ssh login.</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*Kuaqezn14-8-fwUkaCDkTg.png" data-proofer-ignore><figcaption>Nmap result</figcaption></figure><p>So I move further and tried to login via ssh. But wait what should be the credentials for ssh login? So I just visited my notes again what I have so far in my notes to be use for ssh login. So while reading I found that the message which I got at the time of decoding the <strong>base64 string</strong> via <strong>CyberChef</strong> was pointing somewhere around password. So I thought there is a password present in the message which I found in the following screenshot :</p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*pYqw_nH1WwNUHa5RLHoKjA.png" data-proofer-ignore><figcaption>Password for user Sad Detail found from one of GitLab commits</figcaption></figure><blockquote>So voila I made a <strong>username:password</strong> pair and thus I got &quot;saddetail:take-a-few-pages-from-my-book&quot; as a <strong>successful password pair</strong> and I achieved a <strong>successful</strong> <strong>login</strong> in a <strong>ssh session</strong>.</blockquote><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*XIGj6tJj_z-BM4br3H20VA.png" data-proofer-ignore><figcaption>Successful Login with the creds <strong>saddetail:take-a-few-pages-from-my-book</strong></figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*j29nLMCftoAOMH1Y-488iQ.png" data-proofer-ignore><figcaption><strong>ls</strong> command not found error as the shell is rbash</figcaption></figure><p>After logging in,I tried to enumerate the file system for finding the flag by using directory listing command &quot;ls&quot; but it failed and it simply throws an error of command not found. So I was little stuck here on how to move further. Also I observed something weird from the command not found error that it is a restrictive bash shell as it throws an error when I typed &quot;ls&quot;in the terminal and not the normal bash shell. So I decided to take a reference from my writeup on <strong>Recovery room</strong> on <strong>TryHackMe</strong> where there was a similar scenario.</p><p><a href="https://github.com/Bornunique911/THM-Recovery">GitHub - Bornunique911/THM-Recovery</a></p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*pwgzmfJRf6yFtROkBFKmYA.png" data-proofer-ignore><figcaption>Taking TryHackMe room named <a href="https://tryhackme.com/room/recovery"><strong>Recovery</strong></a> writeup made by me as a reference</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*F7c_rGdpuhZ9E-s0Lg3NHg.png" data-proofer-ignore><figcaption>It gives me an error as it is not a normal bash shell but a rbash shell aka restricted bash shell</figcaption></figure><p>So by taking the reference from my writeup, I exited the ssh session and I tried to append &quot;/bin/bash&quot; in the ssh command shown in the screenshot above and it failed.</p><blockquote><strong>ssh saddetail@mistake.payatu.lol -p 9922 &quot;/bin/bash&quot;</strong></blockquote><p>So I got another idea like what if I try to run a directory listing command &quot;ls -la&quot; by appending it in the ssh command.</p><blockquote><strong>ssh saddetail@mistake.payatu.lol -p 9922 “ls -la”</strong></blockquote><p>Voila it got successful finally and I get the listing of the files and directories including flag.txt file. For further step, for capturing the Mistake-1 flag, I just append to the previous command &quot;ls -la;cat flag.txt&quot;</p><blockquote><strong>ssh saddetail@mistake.payatu.lol -p 9922 “ls -la;cat flag.txt”</strong></blockquote><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*-7bDhSIAy_k0FZ1LtJdo8A.png" data-proofer-ignore><figcaption>It was successful when I tried directory listing of files and directories</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*EgH8fNWgBdI84_Hh6AcF8Q.png" data-proofer-ignore><figcaption>Also I got a flag file while directory listing</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*ZKzpx-KmwVXic_Ca7Z1ulg.png" data-proofer-ignore><figcaption>Finally flag for Mistake-1 challenge was captured</figcaption></figure><p>Voila after executing the above command, I successfully got the Mistake-1 flag.</p><p>— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —</p><h4>Mistake-2 :-</h4><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/546/1*rUYpnEsxFiTWJxCgpD0Aug.png" data-proofer-ignore><figcaption>Mistake-2 Challenge Description</figcaption></figure><p>As I captured the <strong>Mistake-1</strong> flag, I moved further with <strong>Mistake-2</strong> challenge from the <strong>Network category</strong>. Let’s start.</p><p>In <strong>Mistake-1</strong>, I got the flag from the user’s home directory without entering into a ssh session. So I thought now in <strong>Mistake-2 </strong>challenge, I have to escalate the privileges to root. So I have to logged into a stable ssh session for privilege escalation as the ssh session shell is rbash. In simple words, I have to escape rbash shell in the ssh session to bash shell. So to do that I searched for all the possible results for rbash shell escaping via Google Search but none work except for one which is as under:</p><p><a href="https://oscpnotes.infosecsanyam.in/My_OSCP_Preparation_Notes--Enumeration--SSH--rbash_shell_esacping.html">rbash shell esacping</a></p><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/891/1*8NBlQaZaYgfKL2CizN1WWw.png" data-proofer-ignore><figcaption>Steps to escape rbash shell</figcaption></figure><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*RwBHcP-yI15yR2Se957SQw.png" data-proofer-ignore><figcaption>Successfully entered into a bash shell by the steps mentioned</figcaption></figure><blockquote>So as I have entered a bash shell then I can simply run &quot;sudo -l&quot; and the result for the same is as follows:</blockquote><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*8vW2h5kDiqPCs9SFTonDPA.png" data-proofer-ignore><figcaption>Privilege Escalation To Root “sudo -l” output</figcaption></figure><blockquote>As I observed that <strong>SETENV</strong> is enabled,I can change the root user’s environment variables.</blockquote><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*MkJtH46dGazU6PoF0jDLYw.png" data-proofer-ignore><figcaption>Contents of script.py</figcaption></figure><blockquote>From the above script.py, I observed that it is a simple calculator. As I can change the environment of root user, let’s make our own python library and add it to the &quot;PATH&quot; variable for execution. Let’s change directory to &quot;/tmp&quot;<strong><em> </em></strong>. As os library is called first, so let’s craft it.</blockquote><figure><img alt="" data-src="https://cdn-images-1.medium.com/max/1024/1*ocHuH6Ho9oZi9bPqsFT5PQ.png" data-proofer-ignore><figcaption>Finally for Mistake-2 challenge was captured</figcaption></figure><p>Voila I successfully rooted the challenge by using library hijacking for privilege escalation to root.</p><p>— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —</p><p>Thank you so much everyone for reading this blog till the end.</p><p>Peace !!!</p><p>— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —</p><blockquote><strong><em>References :-</em></strong></blockquote><ul><li><a href="https://github.com/sqlmapproject/sqlmap">GitHub - sqlmapproject/sqlmap: Automatic SQL injection and database takeover tool</a></li><li><a href="https://github.com/appsecco/dvna/blob/master/docs/solution/a9-using-components-with-known-vulnerability.md">dvna/a9-using-components-with-known-vulnerability.md at master · appsecco/dvna</a></li><li><a href="https://jwlss.pw/mathjs/">How we exploited a remote execution vulnerability in math.js</a></li><li><a href="https://ctftime.org/writeup/11014">CTFtime.org / HackIT CTF 2018 / Believer Case / Writeup</a></li><li><a href="https://ctftime.org/writeup/10895">CTFtime.org / TokyoWesterns CTF 4th 2018 / Shrine / Writeup</a></li><li><a href="https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection">SSTI (Server Side Template Injection)</a></li></ul><ul><li><a href="https://jinja.palletsprojects.com/en/2.11.x/api/#exceptions">https://jinja.palletsprojects.com/en/2.11.x/api/#exceptions</a></ul><ul><li><a href="https://gitlab.com/saddetail/">Sad Detail · GitLab</a></li></ul><ul><li><a href="https://gchq.github.io/CyberChef/">CyberChef</a></li></ul><ul><li><a href="https://tryhackme.com/room/recovery">https://tryhackme.com/room/recovery</a></li></ul><ul><li><a href="https://github.com/Bornunique911/THM-Recovery">GitHub - Bornunique911/THM-Recovery</a></li></ul><ul><li><a href="https://oscpnotes.infosecsanyam.in/My_OSCP_Preparation_Notes--Enumeration--SSH--rbash_shell_esacping.html">rbash shell esacping</a></li></ul><ul><li><a href="https://www.hackingarticles.in/linux-privilege-escalation-python-library-hijacking/">Linux Privilege Escalation: Python Library Hijacking - Hacking Articles</a></li></ul><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" data-src="https://medium.com/_/stat?event=post.clientViewed&referrerSource=full_rss&postId=87de06310e6d" width="1" height="1" alt="" data-proofer-ignore>
+
+</div>
+
+<div class="post-tail-wrapper text-muted">
+
+  <!-- categories -->
+  
+
+  <!-- tags -->
+  
+
+  <div class="post-tail-bottom
+    d-flex justify-content-between align-items-center mt-3 pt-5 pb-2">
+    <div class="license-wrapper">
+
+      
+
+        
+
+        This post is licensed under 
+        <a href="https://creativecommons.org/licenses/by/4.0/">
+          CC BY 4.0
+        </a>
+         by the author.
+
+      
+    </div>
+
+    <!--
+ Post sharing snippet
+-->
+
+<div class="share-wrapper">
+  <span class="share-label text-muted mr-1">Share</span>
+  <span class="share-icons">
+    
+    
+    
+
+    
+      
+        <a href="https://twitter.com/intent/tweet?text=Payatu+Hiring+CTF+2022%3A+Challenges+Writeup+-+Bornunique911&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2Fpayatu-hiring-ctf-2022-challenges-writeup%2F" data-toggle="tooltip" data-placement="top"
+          title="Twitter" target="_blank" rel="noopener" aria-label="Twitter">
+          <i class="fa-fw fab fa-twitter"></i>
+        </a>
+    
+      
+        <a href="https://www.facebook.com/sharer/sharer.php?title=Payatu+Hiring+CTF+2022%3A+Challenges+Writeup+-+Bornunique911&u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2Fpayatu-hiring-ctf-2022-challenges-writeup%2F" data-toggle="tooltip" data-placement="top"
+          title="Facebook" target="_blank" rel="noopener" aria-label="Facebook">
+          <i class="fa-fw fab fa-facebook-square"></i>
+        </a>
+    
+      
+        <a href="https://t.me/share/url?url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2Fpayatu-hiring-ctf-2022-challenges-writeup%2F&text=Payatu+Hiring+CTF+2022%3A+Challenges+Writeup+-+Bornunique911" data-toggle="tooltip" data-placement="top"
+          title="Telegram" target="_blank" rel="noopener" aria-label="Telegram">
+          <i class="fa-fw fab fa-telegram"></i>
+        </a>
+    
+
+    <i id="copy-link" class="fa-fw fas fa-link small"
+        data-toggle="tooltip" data-placement="top"
+        title="Copy link"
+        data-title-succeed="Link copied successfully!">
+    </i>
+
+  </span>
+</div>
+
+
+  </div><!-- .post-tail-bottom -->
+
+</div><!-- div.post-tail-wrapper -->
+
+
+      
+    
+    
+
+    </div>
+  </div> <!-- #core-wrapper -->
+
+  <!-- panel -->
+  <div id="panel-wrapper" class="col-xl-3 pl-2 text-muted">
+
+    <div class="access">
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="access-lastmod" class="post">
+    <div class="panel-heading">Recently Updated</div>
+    <ul class="post-content pl-0 pb-1 ml-1 mt-2">
+      
+        
+        
+        
+      <li><a href="/posts/payatu-hiring-ctf-2022-challenges-writeup/">Payatu Hiring CTF 2022: Challenges Writeup</a></li>
+      
+    </ul>
+  </div> <!-- #access-lastmod -->
+
+
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+
+    
+      
+      
+
+
+
+<!-- BS-toc.js will be loaded at medium priority -->
+<script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script>
+
+<div id="toc-wrapper" class="pl-0 pr-4 mb-5">
+  <div class="panel-heading pl-3 pt-2 mb-2">Contents</div>
+  <nav id="toc" data-toggle="toc"></nav>
+</div>
+
+
+    
+  </div>
+
+</div>
+
+<!-- tail -->
+
+<div class="row">
+  <div id="tail-wrapper" class="col-12 col-lg-11 col-xl-9 pl-3 pr-3 pr-xl-4 mt-5">
+    
+      
+      <!--
+ Recommend the other 3 posts according to the tags and categories of the current post,
+ if the number is not enough, use the other latest posts to supplement.
+-->
+
+<!-- The total size of related posts  -->
+
+
+<!-- An random integer that bigger than 0  -->
+
+
+<!-- Equals to TAG_SCORE / {max_categories_hierarchy}  -->
+
+
+
+
+
+
+
+
+  
+
+  
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+
+
+
+<!-- Fill with the other newlest posts  -->
+
+
+
+  
+    
+    
+  
+    
+    
+      
+      
+        
+        
+        
+      
+    
+  
+
+
+
+  <div id="related-posts" class="mb-2 mb-sm-4">
+    <h3 class="pt-2 mb-4 ml-1"
+      data-toc-skip>Further Reading</h3>
+    <div class="card-deck mb-4">
+    
+      
+      
+      <div class="card">
+        <a href="/posts/gallery-tryhackme-write-up/">
+          <div class="card-body">
+            <!--
+  Date format snippet
+  See: ${JS_ROOT}/utils/locale-dateime.js
+-->
+
+
+
+
+
+<em class="small"
+    data-ts="1646591400"
+    data-df="ll"
+    >
+  Mar  7, 2022
+</em>
+
+            <h3 class="pt-0 mt-1 mb-3" data-toc-skip>Gallery - TryHackMe Write-up</h3>
+            <div class="text-muted small">
+              <p>
+                
+
+
+
+
+
+                TryHackMe : Gallery
+Hello everyone, I hope you all are doing great. This is my first blog of any TryHackMe room walk-through. So, let’s get started. So I am gonna start with a TryHackMe room called...
+              </p>
+            </div>
+          </div>
+        </a>
+      </div>
+    
+    </div> <!-- .card-deck -->
+  </div> <!-- #related-posts -->
+
+
+    
+      
+      <!--
+  Navigation buttons at the bottom of the post.
+-->
+
+<div class="post-navigation d-flex justify-content-between">
+  
+  <a href="/posts/gallery-tryhackme-write-up/" class="btn btn-outline-primary"
+    prompt="Older">
+    <p>Gallery - TryHackMe Write-up</p>
+  </a>
+  
+
+  
+  <div class="btn btn-outline-primary disabled"
+    prompt="Newer">
+    <p>-</p>
+  </div>
+  
+
+</div>
+
+    
+      
+      <!--  The comments switcher -->
+
+
+    
+  </div>
+</div>
+
+
+      </div>
+
+      <!--
+  The Search results
+-->
+<div id="search-result-wrapper" class="d-flex justify-content-center unloaded">
+  <div class="col-12 col-sm-11 post-content">
+    <div id="search-hints">
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+    <div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div>
+  </div>
+</div>
+
+
+    </div> <!-- #main-wrapper -->
+
+    <!-- The Footer -->
+
+<footer>
+  <div class="container pl-lg-4 pr-lg-4">
+    <div class="d-flex justify-content-between align-items-center text-muted ml-md-3 mr-md-3">
+      <div class="footer-left">
+        <p class="mb-0">
+          © 2023
+          <a href="https://twitter.com/bornunique911">Bornunique911</a>.
+          
+          <span data-toggle="tooltip" data-placement="top"
+            title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span>
+          
+        </p>
+      </div>
+
+      <div class="footer-right">
+        <p class="mb-0">
+
+          
+
+          
+
+          Powered by 
+          <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a>
+           with 
+          <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a>
+           theme.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    
+
+    <div id="mask"></div>
+
+    <a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button">
+      <i class="fas fa-angle-up"></i>
+    </a>
+
+    
+
+    <!--
+  Jekyll Simple Search loader
+  See: <https://github.com/christian-fei/Simple-Jekyll-Search>
+-->
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.10.0/dest/simple-jekyll-search.min.js"></script>
+
+<script>
+SimpleJekyllSearch({
+  searchInput: document.getElementById('search-input'),
+  resultsContainer: document.getElementById('search-results'),
+  json: '/assets/js/data/search.json',
+  searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0">  <a href="{url}">{title}</a>  <div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1">    {categories}    {tags}  </div>  <p>{snippet}</p></div>',
+  noResultsText: '<p class="mt-5">Oops! No results found.</p>',
+  templateMiddleware: function(prop, value, template) {
+    if (prop === 'categories') {
+      if (value === '') {
+        return `${value}`;
+      } else {
+        return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`;
+      }
+    }
+
+    if (prop === 'tags') {
+      if (value === '') {
+        return `${value}`;
+      } else {
+        return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`;
+      }
+    }
+  }
+});
+</script>
+
+
+    <!--
+  JS selector for site.
+-->
+
+<!-- layout specified -->
+
+
+  
+
+
+
+  <!-- image lazy-loading & popup & clipboard -->
+  
+
+  
+
+
+
+
+
+
+
+  
+    
+
+    
+
+  
+
+
+
+  
+    
+
+    
+
+  
+
+
+
+  
+    
+
+    
+
+  
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/combine/npm/magnific-popup@1/dist/jquery.magnific-popup.min.js,npm/lozad/dist/lozad.min.js,npm/clipboard@2/dist/clipboard.min.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+
+
+
+
+
+  
+    
+
+    
+
+  
+
+
+
+  
+    
+
+    
+
+  
+
+
+
+  
+    
+
+    
+
+  
+
+
+
+  
+    
+
+    
+
+  
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/combine/npm/dayjs@1/dayjs.min.js,npm/dayjs@1/locale/en.min.js,npm/dayjs@1/plugin/relativeTime.min.js,npm/dayjs@1/plugin/localizedFormat.min.js"></script>
+
+
+
+
+
+
+
+
+<script defer src="/assets/js/dist/post.min.js"></script>
+
+
+
+<!-- commons -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
+  </body>
+
+</html>

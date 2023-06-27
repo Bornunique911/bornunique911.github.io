@@ -17,6 +17,7 @@ end
 
 # Performance-booster for watching directories on Windows
 gem "wdm", "~> 0.1.1", :platforms => [:mingw, :x64_mingw, :mswin]
+gem "rss"
 
 # Lock `http_parser.rb` gem to `v0.6.x` on JRuby builds since newer versions of the gem
 # do not have a Java counterpart.
@@ -26,3 +27,7 @@ gem "http_parser.rb", "~> 0.6.0", :platforms => [:jruby]
 if RUBY_PLATFORM =~ /linux-musl/
   gem "jekyll-sass-converter", "~> 2.0"
 end
+
+# Adding Jekyll-seo-tag
+gem 'jekyll-seo-tag'
+gem "jekyll-import", git: "https://github.com/pew/jekyll-import.git"

@@ -35,7 +35,7 @@
 
   
     <!-- Begin Jekyll SEO tag v2.8.0 -->
-<meta name="generator" content="Jekyll v4.3.2" />
+<meta name="generator" content="Jekyll v4.3.1" />
 <meta property="og:title" content="Payatu Hiring CTF 2022: Challenges Writeup" />
 <meta name="author" content="Bornunique911" />
 <meta property="og:locale" content="en" />
@@ -52,7 +52,7 @@
 <meta name="twitter:creator" content="@Bornunique911" />
 <meta name="google-site-verification" content="google_meta_tag_verification" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Bornunique911"},"dateModified":"2022-12-03T18:40:13+05:30","datePublished":"2022-10-16T00:00:00+05:30","description":"Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2 Hello everyone, I hope you all are doing great things and learning&#39;s everyday just like me. So I hereby came with my new and fresh blog again on Payatu Hiring CTF challenges walkthroughs. I solved 8 challenges out of 30 challenges which consists of Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2, Catch Me If You Can and so on and I secured 12th rank. I will be walking you through the challenges from Web and Network category which consists the following : Web Challenges : Babysqli Stardust EasyCalc Network Challenges : Mistake-1 Mistake-2 Payatu Hiring CTF Platform (https://ctf.payatu.com/) Prizes For The Winners : Introduction : Timeline of the CTF : The CTF will start at 9:00 AM on 15th October 2022 and end at 9:00 PM (12 Hours) There are multiple tracks of challenges. Start with the one you are comfortable with and ride your way up to the top. Do not attack the CTF platform or deliberately perform actions that might lead to the platform/challenges being unavailable for other players. Rules : Any kind of flag sharing/cheating will lead to disqualification. Any request to consider allotment of points for challenges solved but flag not submitted will not be entertained. Winning / Being in the top list of the leaderboard will only help you land an interview with Payatu. You will have to clear the interviews to get the job offer. This is an individual event, and team participation is not allowed. Anyone can play the CTF, but the hiring is limited to only Indian Participants. Let’s begin the writeup first with web challenges. Let’s get started. Web Category :- Babysqli:- Babysqli Challenge Description Let’s start with Babysqli from Web challenge. First things first I visited the provided link to the challenge and I land at this page which is as under: Simple Login Page from http://babysqli.payatu.lol/ By exploring the website for quite sometime, I noticed that it is vulnerable to MySQL Injection by looking at the source code which is mentioned at the end of the page. Source Code for MySQL database So after looking at the source code the query field has equipped some filters which are as under : $query = &#39;SELECT * FROM users WHERE username=&quot;&#39;.$user.&#39;&quot; AND password=&quot;&#39;.$pass.&#39;&quot;&#39;; So if anyone who will run the payloads like this &#39; or 1 or &#39; admin&#39; || &#39;1&#39; == &#39;1 &#39; || &#39;1&#39;== &#39;1 will tend fail as it is opposed by the filters equipped. So I have two options to exploit MySQL either by using automated tool called sqlmap or manual injection. So I used sqlmap for exploiting this type of SQL injection. Firstly, I will enumerate forms by running following command : sqlmap -u http://babysqli.payatu.lol/ --forms Enumerating Forms Now, I took the next step to dump databases by running following command : sqlmap -u http://babysqli.payatu.lol/ --forms --dbs Enumerating Databases Now after enumerating databases, I have to enumerate how many tables are there in a particular database but there are 3 databases to choose so which one to choose is a question standing. So I choose &quot;babysqli&quot; database because I feel that it may contain juicy data to extract like users, passwords, etc. So, now I will enumerate tables of database &quot;babysqli&quot; with the following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli --tables Enumerating Tables Now, as there is only one table called &quot;users&quot; we can enumerate the columns for a particular table by the following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users --columns Enumerating columns Now, finally I will dump the data from the columns by following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users -C id,username,password --dump Got the password of all the users But unfortunately none of them have flag inside their accounts. So, I basically copied the payload from the sqlmap output and successfully logged into by pasting the following payload in the username and password field for the account and I found the flag from the source code. xYPs&quot; UNION ALL SELECT NULL,CONCAT(0x7178626b71,0x6478697349625a4d527266625861596455566c704b4c714f65684777674d737145747a614b6a6159,0x7176707171),NULL# Congratulations message for solving the challenge Finally flag for BabySqli challenge was captured Voila I have successfully captured the babysqli challenge flag with the help of sqlmap. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Stardust:- Stardust Challenge Description Let’s start with Stardust from Web challenge. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of http://stardust.payatu.lol/ By exploring the website for quite sometime, I noticed that there are 6 chapters for Dev Wars which points to the different location on the main page. Let’s say for example if I clicked Chapter 1 from the main page it goes to different location which is (http://stardust.payatu.lol/chapter?episode=the+phantom+feature) in case of Chapter 1 and so on and so forth. Now when I visited Chapter 1 link there was one parameter which was important to look at and that was &quot;episode&quot;. So by looking at the Chapter 1 link (http://stardust.payatu.lol/chapter?episode=the+phantom+feature) for sometime I noticed that it runs a episode of Chapter 1 and the page is at still showing the contents of the episode. Playing episode 1 from Chapter 1 So I decided that why not explore &quot;episode=&quot; parameter by giving &quot;&#123;&#123;9 * 9&#125;&#125;&quot;as payload and it gave the product of &quot;9 * 9&quot; which is 81 as output. Product of 9 multiplied by 9 So by observing this I thought that the &quot;episode&quot; is vulnerable to SSTI vulnerability aka Server Side Template Injection. So I decided to exploit it via some SSTI payloads. So I decided to use a very good writeup from HackIT CTF 2018 on ctftime.org published by the user kazkiti on SSTI payloads which he explained everything very nicely in detail manner on how to identify the vulnerability to how to get the flag at the end by exploiting SSTI. Little glance of the CTF writeup published by the user kazkiti on ctftime.org So first things first as I observed that the web application is vulnerable to SSTI, then I decided to follow along by reading the writeup thoroughly and I moved further with the first payload which is &quot;&#123;&#123;__self__.__doc__&#125;&#125;&quot; by appending it to after &quot;episode=&quot; parameter whether the web application is using Jinja2 or not. Voila it successfully gave me a Jinja2 error which is as under : Error confirms that it is Jinja2 running in the backend So after confirming that it’s Jinja2 I can either use HackTricks blog on SSTI payloads or the payloads which the writeup I discussed earlier have mentioned in their writeup. So, I will use the payloads which the writeup which I discussed earlier have mentioned as a weapon as it gave us an idea how an SSTI is successfully exploited step-by-step. So as per the writeup, I used the second payload which is &quot;&#123;&#123;self&#125;&#125;&quot; after &quot;episode=&quot; as under : Trying “&#123;&#123;self&#125;&#125;” as the second payload As I can observe here that it shows &lt;TemplateReference None&gt; as output when I typed &quot;&#123;&#123;self&#125;&#125;&quot;. So for more information, I would recommend to read the documentation on Jinja2 and a writeup where the same person who I have took the reference of has mentioned in their previous writeup. Moving along I passed the third payload which is &quot;&#123;&#123;config&#125;&#125;&quot; after &quot;episode=&quot; I got the following as follows : Passing &#123;&#123;config&#125;&#125; as the third payload Finally I have successfully captured the flag when I typed &quot;&#123;&#123;config&#125;&#125;&quot; as a parameter value. So the flag is as under : Finally flag for Stardust challenge was captured — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — EasyCalc:- EasyCalc Challenge Description Let’s start with EasyCalc from Web category. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of http://easy-calc.payatu.lol/ By exploring the website for quite sometime, I noticed that it’s a simple page which has a calculator functionality to compute simple operations such as addition, subtraction, division and multiplication and trigonometric operations such as sin, cos and tan. So I tried to google search the writeups of the any previous CTF’s if they have anything related to bypass this simple calculator functionality and I found some interesting results which are as under : Google Search Results for Simple Calculator CTF writeups So later on I decided why not I should check the source code of the page and so I checked the source code and there I found some script tags which contains the following code: JavaScript Code Also from the source code I found some important thing to note which is the input tag in which the value is nothing but I came across the word &quot;disabled&quot;. Interesting thing I noted here about why is disabled here. After sometime I thought that why not make some changes in the input tag by adding &quot;enabled=enabled&quot; by removing &quot;disabled&quot; from the input tag by inspecting the element as in the view page source we can’t make any changes and let’s see what we get. We got following as output : Removing disabled and adding enabled in the input tag And one other thing notice is that now I can type in the input whatever I want like alphabets,etc but it will throw an error because it requires a mathematical operations like 7+7, etc and not the random alphabets and special characters. Now here I was little bit stuck because I have read many writeups based on simple calc by googling the same. But afterwards I got one idea why not I should check Network tab for what’s happening behind the scenes. So I tried simple math addition between numbers and I got the following output in the Network Tab : So now it’s clear that I have to exploit nodejs whereby nodejs has a extensive math library called math.js. So ultimately I have to exploit math.js in short with some payloads which return output as &quot;[Object][object]&quot;. So I googled for math.js exploit on Google and I found this as output as google search results : I used https://jwlss.pw/mathjs for exploiting math.js library. So I read the context and applied the same to web application from the blog post. Now from the article I can relate that math.js has a vulnerability of Remote Code Execution so let’s get our hands dirty and exploit the math.js library through our web application and solve the challenge successfully. Also I noticed further that &quot;query=&quot;is vulnerable and so I can exploit it by using the payloads which was mentioned in the article which I have read earlier. Now I will make my hands dirty and exploit query field by passing this as payload &quot;cos.constructor(\\&quot;return process.env\\&quot;)()&quot; and let’s see what we get as output : Request for changing query field content Request after sending the payload in query field Response after sending payload in the query field Finally flag for EasyCalc was captured Voila we have successfully solved all the web challenges. Now it’s time to solve challenges from Network category. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Network Category :- Mistake-1:- Mistake -1 Challenge Description Let’s start with Mistake-1 from Network category. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of https://mistake.payatu.lol By exploring the website for quite sometime, I noticed that it’s a static page which seems like a normal portfolio page of a user. I quickly checked the functionality of the page whether any content is clickable or not and I found that some content is clickable and some isn’t. So I figured out that home page, about me, etc is clickable whereas when I click on social media handles like Twitter, Facebook, Google+ and Linkedin turns out to be unclickable as it is an unclickable content but interestingly I found that except for social media handles there also possess GitLab handle which points the link to the GitLab account of the user named Sad Detail. Clicking on social media handles such as Twitter,Facebook,Google+ and Linkedin turns out to be nothing interesting But apart from social handles,GitLab has a link to visit to https://gitlab.com/saddetail Let’s visit the GitLab link which points to user Sad Detail’s GitLab account. By visiting the user account I found that there is only one single repository which is his my-portfolio as it is also hosted on the website from which I came from. By visiting GitLab page,we got the GitLab user named Sad Detail The user named Sad Detail possess only one repository named my-portfolio in his GitLab account Overview of GitLab repository named my-portfolio Let’s explore my-portfolio repository of user Sad Detail, so I was greeted with these files and folders in his repository. So I got one idea that as GitHub and GitLab possess similar functionality of managing commits by maintaining commit logs so why not explore the history of the commit from the starting point. So I just clicked the repository name and then I clicked history and thus I was greeted with more commits which are older than the present one which I was currently on. Clicking on my-portfolio Clicking on history to view the other commits for the repository The following screenshot shows the order of commits that were created by the user Sad Detail for their my-portfolio repository. I noticed that one commit seems to be useful among 8 commits that were made in total. The commit that was interesting according to me was “damn, never thought people at NULLCON would crack it so easily. My security…” as I marked the keyword &quot;NULLCON&quot; in the commit description. Order of commits which are made for my-portfolio repository Luckily I got my instinct correct and it was an interesting commit with some nice changes made. Clicking on damn, never thought people at NULLCON would crack it so easily. My security consultant friends were right commit to look further what’s inside and what were the changes made After exploring the NULLCON keyword commit, I was greeted with some nice 6 deletions and 0 deletions in the index.html file. At first glance, we see that there is one index.html file which contains some interesting content with 6 deletions and 0 additions Looking closer to the index.html file, I found that there is some base64 encoded string commented in the file which might be useful. So I copied that string for future use in Sublime Text editor. Base64 encoded string Without wasting any time I spinned up CyberChef on the browser and I just pasted the string which I copied earlier into the input field with some proper formatting. Voila when I pasted the string I got a suggestion from a CyberChef that it is definitely a base64 encoded string which can be decoded as a normal string. Placing base64 encoded in CyberChef for decoding it After decoding base64 string After decoding the base64 encoded string, I got the following message as the output shown below: Message after decoding from base64 string Now what to do next after getting this message. So I first thought that this must be it for the challenge so I submitted the flag as &quot;flag&#123;take-a-few-pages-from-my-book&#125;&quot;. But sadly it was not as expected as in the challenge description there was some interesting note given by the challenge author and also it’s a Network category challenge so the flag might be incorrect in that respect. By reading the note mentioned in the challenge description, I again picked the two keywords which were Room no. 22 and Room no. 9922 which ultimately states that Room no.22 is under repair aka SSH Default port 22 is under repair whereas you can check Room no. 9922 instead states that it was an another SSH port in exception of SSH default port 22. Wait what! I was puzzled at that moment. So I just checked port 9922 real quick by visiting it by appending to the actual website which in turn result into like this as under : It was redirected to ssh version information and then it was a connection reset For further enumeration we can also check via nmap (Network Mapper Tool) use for scanning ports and services. Thus I concluded that port 9922 is a ssh port open for ssh login. Nmap result So I move further and tried to login via ssh. But wait what should be the credentials for ssh login? So I just visited my notes again what I have so far in my notes to be use for ssh login. So while reading I found that the message which I got at the time of decoding the base64 string via CyberChef was pointing somewhere around password. So I thought there is a password present in the message which I found in the following screenshot : Password for user Sad Detail found from one of GitLab commits So voila I made a username:password pair and thus I got &quot;saddetail:take-a-few-pages-from-my-book&quot; as a successful password pair and I achieved a successful login in a ssh session. Successful Login with the creds saddetail:take-a-few-pages-from-my-book ls command not found error as the shell is rbash After logging in,I tried to enumerate the file system for finding the flag by using directory listing command &quot;ls&quot; but it failed and it simply throws an error of command not found. So I was little stuck here on how to move further. Also I observed something weird from the command not found error that it is a restrictive bash shell as it throws an error when I typed &quot;ls&quot;in the terminal and not the normal bash shell. So I decided to take a reference from my writeup on Recovery room on TryHackMe where there was a similar scenario. GitHub - Bornunique911/THM-Recovery Taking TryHackMe room named Recovery writeup made by me as a reference It gives me an error as it is not a normal bash shell but a rbash shell aka restricted bash shell So by taking the reference from my writeup, I exited the ssh session and I tried to append &quot;/bin/bash&quot; in the ssh command shown in the screenshot above and it failed. ssh saddetail@mistake.payatu.lol -p 9922 &quot;/bin/bash&quot; So I got another idea like what if I try to run a directory listing command &quot;ls -la&quot; by appending it in the ssh command. ssh saddetail@mistake.payatu.lol -p 9922 “ls -la” Voila it got successful finally and I get the listing of the files and directories including flag.txt file. For further step, for capturing the Mistake-1 flag, I just append to the previous command &quot;ls -la;cat flag.txt&quot; ssh saddetail@mistake.payatu.lol -p 9922 “ls -la;cat flag.txt” It was successful when I tried directory listing of files and directories Also I got a flag file while directory listing Finally flag for Mistake-1 challenge was captured Voila after executing the above command, I successfully got the Mistake-1 flag. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Mistake-2 :- Mistake-2 Challenge Description As I captured the Mistake-1 flag, I moved further with Mistake-2 challenge from the Network category. Let’s start. In Mistake-1, I got the flag from the user’s home directory without entering into a ssh session. So I thought now in Mistake-2 challenge, I have to escalate the privileges to root. So I have to logged into a stable ssh session for privilege escalation as the ssh session shell is rbash. In simple words, I have to escape rbash shell in the ssh session to bash shell. So to do that I searched for all the possible results for rbash shell escaping via Google Search but none work except for one which is as under: rbash shell esacping Steps to escape rbash shell Successfully entered into a bash shell by the steps mentioned So as I have entered a bash shell then I can simply run &quot;sudo -l&quot; and the result for the same is as follows: Privilege Escalation To Root “sudo -l” output As I observed that SETENV is enabled,I can change the root user’s environment variables. Contents of script.py From the above script.py, I observed that it is a simple calculator. As I can change the environment of root user, let’s make our own python library and add it to the &quot;PATH&quot; variable for execution. Let’s change directory to &quot;/tmp&quot; . As os library is called first, so let’s craft it. Finally for Mistake-2 challenge was captured Voila I successfully rooted the challenge by using library hijacking for privilege escalation to root. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Thank you so much everyone for reading this blog till the end. Peace !!! — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — References :- GitHub - sqlmapproject/sqlmap: Automatic SQL injection and database takeover tooldvna/a9-using-components-with-known-vulnerability.md at master · appsecco/dvnaHow we exploited a remote execution vulnerability in math.jsCTFtime.org / HackIT CTF 2018 / Believer Case / WriteupCTFtime.org / TokyoWesterns CTF 4th 2018 / Shrine / WriteupSSTI (Server Side Template Injection) https://jinja.palletsprojects.com/en/2.11.x/api/#exceptions&lt;/ul&gt;Sad Detail · GitLabCyberChefhttps://tryhackme.com/room/recoveryGitHub - Bornunique911/THM-Recoveryrbash shell esacpingLinux Privilege Escalation: Python Library Hijacking - Hacking Articles","headline":"Payatu Hiring CTF 2022: Challenges Writeup","mainEntityOfPage":{"@type":"WebPage","@id":"https://bornunique911.medium.com/payatu-hiring-ctf-2022-challenges-writeup-87de06310e6d?source=rss-348ebd5cdb70------2"},"url":"https://bornunique911.medium.com/payatu-hiring-ctf-2022-challenges-writeup-87de06310e6d?source=rss-348ebd5cdb70------2"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Bornunique911"},"dateModified":"2022-10-16T00:00:00+05:30","datePublished":"2022-10-16T00:00:00+05:30","description":"Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2 Hello everyone, I hope you all are doing great things and learning&#39;s everyday just like me. So I hereby came with my new and fresh blog again on Payatu Hiring CTF challenges walkthroughs. I solved 8 challenges out of 30 challenges which consists of Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2, Catch Me If You Can and so on and I secured 12th rank. I will be walking you through the challenges from Web and Network category which consists the following : Web Challenges : Babysqli Stardust EasyCalc Network Challenges : Mistake-1 Mistake-2 Payatu Hiring CTF Platform (https://ctf.payatu.com/) Prizes For The Winners : Introduction : Timeline of the CTF : The CTF will start at 9:00 AM on 15th October 2022 and end at 9:00 PM (12 Hours) There are multiple tracks of challenges. Start with the one you are comfortable with and ride your way up to the top. Do not attack the CTF platform or deliberately perform actions that might lead to the platform/challenges being unavailable for other players. Rules : Any kind of flag sharing/cheating will lead to disqualification. Any request to consider allotment of points for challenges solved but flag not submitted will not be entertained. Winning / Being in the top list of the leaderboard will only help you land an interview with Payatu. You will have to clear the interviews to get the job offer. This is an individual event, and team participation is not allowed. Anyone can play the CTF, but the hiring is limited to only Indian Participants. Let’s begin the writeup first with web challenges. Let’s get started. Web Category :- Babysqli:- Babysqli Challenge Description Let’s start with Babysqli from Web challenge. First things first I visited the provided link to the challenge and I land at this page which is as under: Simple Login Page from http://babysqli.payatu.lol/ By exploring the website for quite sometime, I noticed that it is vulnerable to MySQL Injection by looking at the source code which is mentioned at the end of the page. Source Code for MySQL database So after looking at the source code the query field has equipped some filters which are as under : $query = &#39;SELECT * FROM users WHERE username=&quot;&#39;.$user.&#39;&quot; AND password=&quot;&#39;.$pass.&#39;&quot;&#39;; So if anyone who will run the payloads like this &#39; or 1 or &#39; admin&#39; || &#39;1&#39; == &#39;1 &#39; || &#39;1&#39;== &#39;1 will tend fail as it is opposed by the filters equipped. So I have two options to exploit MySQL either by using automated tool called sqlmap or manual injection. So I used sqlmap for exploiting this type of SQL injection. Firstly, I will enumerate forms by running following command : sqlmap -u http://babysqli.payatu.lol/ --forms Enumerating Forms Now, I took the next step to dump databases by running following command : sqlmap -u http://babysqli.payatu.lol/ --forms --dbs Enumerating Databases Now after enumerating databases, I have to enumerate how many tables are there in a particular database but there are 3 databases to choose so which one to choose is a question standing. So I choose &quot;babysqli&quot; database because I feel that it may contain juicy data to extract like users, passwords, etc. So, now I will enumerate tables of database &quot;babysqli&quot; with the following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli --tables Enumerating Tables Now, as there is only one table called &quot;users&quot; we can enumerate the columns for a particular table by the following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users --columns Enumerating columns Now, finally I will dump the data from the columns by following command : sqlmap -u http://babysqli.payatu.lol/ --forms -D babysqli -T users -C id,username,password --dump Got the password of all the users But unfortunately none of them have flag inside their accounts. So, I basically copied the payload from the sqlmap output and successfully logged into by pasting the following payload in the username and password field for the account and I found the flag from the source code. xYPs&quot; UNION ALL SELECT NULL,CONCAT(0x7178626b71,0x6478697349625a4d527266625861596455566c704b4c714f65684777674d737145747a614b6a6159,0x7176707171),NULL# Congratulations message for solving the challenge Finally flag for BabySqli challenge was captured Voila I have successfully captured the babysqli challenge flag with the help of sqlmap. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Stardust:- Stardust Challenge Description Let’s start with Stardust from Web challenge. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of http://stardust.payatu.lol/ By exploring the website for quite sometime, I noticed that there are 6 chapters for Dev Wars which points to the different location on the main page. Let’s say for example if I clicked Chapter 1 from the main page it goes to different location which is (http://stardust.payatu.lol/chapter?episode=the+phantom+feature) in case of Chapter 1 and so on and so forth. Now when I visited Chapter 1 link there was one parameter which was important to look at and that was &quot;episode&quot;. So by looking at the Chapter 1 link (http://stardust.payatu.lol/chapter?episode=the+phantom+feature) for sometime I noticed that it runs a episode of Chapter 1 and the page is at still showing the contents of the episode. Playing episode 1 from Chapter 1 So I decided that why not explore &quot;episode=&quot; parameter by giving &quot;&#123;&#123;9 * 9&#125;&#125;&quot;as payload and it gave the product of &quot;9 * 9&quot; which is 81 as output. Product of 9 multiplied by 9 So by observing this I thought that the &quot;episode&quot; is vulnerable to SSTI vulnerability aka Server Side Template Injection. So I decided to exploit it via some SSTI payloads. So I decided to use a very good writeup from HackIT CTF 2018 on ctftime.org published by the user kazkiti on SSTI payloads which he explained everything very nicely in detail manner on how to identify the vulnerability to how to get the flag at the end by exploiting SSTI. Little glance of the CTF writeup published by the user kazkiti on ctftime.org So first things first as I observed that the web application is vulnerable to SSTI, then I decided to follow along by reading the writeup thoroughly and I moved further with the first payload which is &quot;&#123;&#123;__self__.__doc__&#125;&#125;&quot; by appending it to after &quot;episode=&quot; parameter whether the web application is using Jinja2 or not. Voila it successfully gave me a Jinja2 error which is as under : Error confirms that it is Jinja2 running in the backend So after confirming that it’s Jinja2 I can either use HackTricks blog on SSTI payloads or the payloads which the writeup I discussed earlier have mentioned in their writeup. So, I will use the payloads which the writeup which I discussed earlier have mentioned as a weapon as it gave us an idea how an SSTI is successfully exploited step-by-step. So as per the writeup, I used the second payload which is &quot;&#123;&#123;self&#125;&#125;&quot; after &quot;episode=&quot; as under : Trying “&#123;&#123;self&#125;&#125;” as the second payload As I can observe here that it shows &lt;TemplateReference None&gt; as output when I typed &quot;&#123;&#123;self&#125;&#125;&quot;. So for more information, I would recommend to read the documentation on Jinja2 and a writeup where the same person who I have took the reference of has mentioned in their previous writeup. Moving along I passed the third payload which is &quot;&#123;&#123;config&#125;&#125;&quot; after &quot;episode=&quot; I got the following as follows : Passing &#123;&#123;config&#125;&#125; as the third payload Finally I have successfully captured the flag when I typed &quot;&#123;&#123;config&#125;&#125;&quot; as a parameter value. So the flag is as under : Finally flag for Stardust challenge was captured — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — EasyCalc:- EasyCalc Challenge Description Let’s start with EasyCalc from Web category. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of http://easy-calc.payatu.lol/ By exploring the website for quite sometime, I noticed that it’s a simple page which has a calculator functionality to compute simple operations such as addition, subtraction, division and multiplication and trigonometric operations such as sin, cos and tan. So I tried to google search the writeups of the any previous CTF’s if they have anything related to bypass this simple calculator functionality and I found some interesting results which are as under : Google Search Results for Simple Calculator CTF writeups So later on I decided why not I should check the source code of the page and so I checked the source code and there I found some script tags which contains the following code: JavaScript Code Also from the source code I found some important thing to note which is the input tag in which the value is nothing but I came across the word &quot;disabled&quot;. Interesting thing I noted here about why is disabled here. After sometime I thought that why not make some changes in the input tag by adding &quot;enabled=enabled&quot; by removing &quot;disabled&quot; from the input tag by inspecting the element as in the view page source we can’t make any changes and let’s see what we get. We got following as output : Removing disabled and adding enabled in the input tag And one other thing notice is that now I can type in the input whatever I want like alphabets,etc but it will throw an error because it requires a mathematical operations like 7+7, etc and not the random alphabets and special characters. Now here I was little bit stuck because I have read many writeups based on simple calc by googling the same. But afterwards I got one idea why not I should check Network tab for what’s happening behind the scenes. So I tried simple math addition between numbers and I got the following output in the Network Tab : So now it’s clear that I have to exploit nodejs whereby nodejs has a extensive math library called math.js. So ultimately I have to exploit math.js in short with some payloads which return output as &quot;[Object][object]&quot;. So I googled for math.js exploit on Google and I found this as output as google search results : I used https://jwlss.pw/mathjs for exploiting math.js library. So I read the context and applied the same to web application from the blog post. Now from the article I can relate that math.js has a vulnerability of Remote Code Execution so let’s get our hands dirty and exploit the math.js library through our web application and solve the challenge successfully. Also I noticed further that &quot;query=&quot;is vulnerable and so I can exploit it by using the payloads which was mentioned in the article which I have read earlier. Now I will make my hands dirty and exploit query field by passing this as payload &quot;cos.constructor(\\&quot;return process.env\\&quot;)()&quot; and let’s see what we get as output : Request for changing query field content Request after sending the payload in query field Response after sending payload in the query field Finally flag for EasyCalc was captured Voila we have successfully solved all the web challenges. Now it’s time to solve challenges from Network category. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Network Category :- Mistake-1:- Mistake -1 Challenge Description Let’s start with Mistake-1 from Network category. First things first I visited the provided link to the challenge and I land at this page which is as under: Landing page of https://mistake.payatu.lol By exploring the website for quite sometime, I noticed that it’s a static page which seems like a normal portfolio page of a user. I quickly checked the functionality of the page whether any content is clickable or not and I found that some content is clickable and some isn’t. So I figured out that home page, about me, etc is clickable whereas when I click on social media handles like Twitter, Facebook, Google+ and Linkedin turns out to be unclickable as it is an unclickable content but interestingly I found that except for social media handles there also possess GitLab handle which points the link to the GitLab account of the user named Sad Detail. Clicking on social media handles such as Twitter,Facebook,Google+ and Linkedin turns out to be nothing interesting But apart from social handles,GitLab has a link to visit to https://gitlab.com/saddetail Let’s visit the GitLab link which points to user Sad Detail’s GitLab account. By visiting the user account I found that there is only one single repository which is his my-portfolio as it is also hosted on the website from which I came from. By visiting GitLab page,we got the GitLab user named Sad Detail The user named Sad Detail possess only one repository named my-portfolio in his GitLab account Overview of GitLab repository named my-portfolio Let’s explore my-portfolio repository of user Sad Detail, so I was greeted with these files and folders in his repository. So I got one idea that as GitHub and GitLab possess similar functionality of managing commits by maintaining commit logs so why not explore the history of the commit from the starting point. So I just clicked the repository name and then I clicked history and thus I was greeted with more commits which are older than the present one which I was currently on. Clicking on my-portfolio Clicking on history to view the other commits for the repository The following screenshot shows the order of commits that were created by the user Sad Detail for their my-portfolio repository. I noticed that one commit seems to be useful among 8 commits that were made in total. The commit that was interesting according to me was “damn, never thought people at NULLCON would crack it so easily. My security…” as I marked the keyword &quot;NULLCON&quot; in the commit description. Order of commits which are made for my-portfolio repository Luckily I got my instinct correct and it was an interesting commit with some nice changes made. Clicking on damn, never thought people at NULLCON would crack it so easily. My security consultant friends were right commit to look further what’s inside and what were the changes made After exploring the NULLCON keyword commit, I was greeted with some nice 6 deletions and 0 deletions in the index.html file. At first glance, we see that there is one index.html file which contains some interesting content with 6 deletions and 0 additions Looking closer to the index.html file, I found that there is some base64 encoded string commented in the file which might be useful. So I copied that string for future use in Sublime Text editor. Base64 encoded string Without wasting any time I spinned up CyberChef on the browser and I just pasted the string which I copied earlier into the input field with some proper formatting. Voila when I pasted the string I got a suggestion from a CyberChef that it is definitely a base64 encoded string which can be decoded as a normal string. Placing base64 encoded in CyberChef for decoding it After decoding base64 string After decoding the base64 encoded string, I got the following message as the output shown below: Message after decoding from base64 string Now what to do next after getting this message. So I first thought that this must be it for the challenge so I submitted the flag as &quot;flag&#123;take-a-few-pages-from-my-book&#125;&quot;. But sadly it was not as expected as in the challenge description there was some interesting note given by the challenge author and also it’s a Network category challenge so the flag might be incorrect in that respect. By reading the note mentioned in the challenge description, I again picked the two keywords which were Room no. 22 and Room no. 9922 which ultimately states that Room no.22 is under repair aka SSH Default port 22 is under repair whereas you can check Room no. 9922 instead states that it was an another SSH port in exception of SSH default port 22. Wait what! I was puzzled at that moment. So I just checked port 9922 real quick by visiting it by appending to the actual website which in turn result into like this as under : It was redirected to ssh version information and then it was a connection reset For further enumeration we can also check via nmap (Network Mapper Tool) use for scanning ports and services. Thus I concluded that port 9922 is a ssh port open for ssh login. Nmap result So I move further and tried to login via ssh. But wait what should be the credentials for ssh login? So I just visited my notes again what I have so far in my notes to be use for ssh login. So while reading I found that the message which I got at the time of decoding the base64 string via CyberChef was pointing somewhere around password. So I thought there is a password present in the message which I found in the following screenshot : Password for user Sad Detail found from one of GitLab commits So voila I made a username:password pair and thus I got &quot;saddetail:take-a-few-pages-from-my-book&quot; as a successful password pair and I achieved a successful login in a ssh session. Successful Login with the creds saddetail:take-a-few-pages-from-my-book ls command not found error as the shell is rbash After logging in,I tried to enumerate the file system for finding the flag by using directory listing command &quot;ls&quot; but it failed and it simply throws an error of command not found. So I was little stuck here on how to move further. Also I observed something weird from the command not found error that it is a restrictive bash shell as it throws an error when I typed &quot;ls&quot;in the terminal and not the normal bash shell. So I decided to take a reference from my writeup on Recovery room on TryHackMe where there was a similar scenario. GitHub - Bornunique911/THM-Recovery Taking TryHackMe room named Recovery writeup made by me as a reference It gives me an error as it is not a normal bash shell but a rbash shell aka restricted bash shell So by taking the reference from my writeup, I exited the ssh session and I tried to append &quot;/bin/bash&quot; in the ssh command shown in the screenshot above and it failed. ssh saddetail@mistake.payatu.lol -p 9922 &quot;/bin/bash&quot; So I got another idea like what if I try to run a directory listing command &quot;ls -la&quot; by appending it in the ssh command. ssh saddetail@mistake.payatu.lol -p 9922 “ls -la” Voila it got successful finally and I get the listing of the files and directories including flag.txt file. For further step, for capturing the Mistake-1 flag, I just append to the previous command &quot;ls -la;cat flag.txt&quot; ssh saddetail@mistake.payatu.lol -p 9922 “ls -la;cat flag.txt” It was successful when I tried directory listing of files and directories Also I got a flag file while directory listing Finally flag for Mistake-1 challenge was captured Voila after executing the above command, I successfully got the Mistake-1 flag. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Mistake-2 :- Mistake-2 Challenge Description As I captured the Mistake-1 flag, I moved further with Mistake-2 challenge from the Network category. Let’s start. In Mistake-1, I got the flag from the user’s home directory without entering into a ssh session. So I thought now in Mistake-2 challenge, I have to escalate the privileges to root. So I have to logged into a stable ssh session for privilege escalation as the ssh session shell is rbash. In simple words, I have to escape rbash shell in the ssh session to bash shell. So to do that I searched for all the possible results for rbash shell escaping via Google Search but none work except for one which is as under: rbash shell esacping Steps to escape rbash shell Successfully entered into a bash shell by the steps mentioned So as I have entered a bash shell then I can simply run &quot;sudo -l&quot; and the result for the same is as follows: Privilege Escalation To Root “sudo -l” output As I observed that SETENV is enabled,I can change the root user’s environment variables. Contents of script.py From the above script.py, I observed that it is a simple calculator. As I can change the environment of root user, let’s make our own python library and add it to the &quot;PATH&quot; variable for execution. Let’s change directory to &quot;/tmp&quot; . As os library is called first, so let’s craft it. Finally for Mistake-2 challenge was captured Voila I successfully rooted the challenge by using library hijacking for privilege escalation to root. — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — Thank you so much everyone for reading this blog till the end. Peace !!! — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — References :- GitHub - sqlmapproject/sqlmap: Automatic SQL injection and database takeover tooldvna/a9-using-components-with-known-vulnerability.md at master · appsecco/dvnaHow we exploited a remote execution vulnerability in math.jsCTFtime.org / HackIT CTF 2018 / Believer Case / WriteupCTFtime.org / TokyoWesterns CTF 4th 2018 / Shrine / WriteupSSTI (Server Side Template Injection) https://jinja.palletsprojects.com/en/2.11.x/api/#exceptions&lt;/ul&gt;Sad Detail · GitLabCyberChefhttps://tryhackme.com/room/recoveryGitHub - Bornunique911/THM-Recoveryrbash shell esacpingLinux Privilege Escalation: Python Library Hijacking - Hacking Articles","headline":"Payatu Hiring CTF 2022: Challenges Writeup","mainEntityOfPage":{"@type":"WebPage","@id":"https://bornunique911.medium.com/payatu-hiring-ctf-2022-challenges-writeup-87de06310e6d?source=rss-348ebd5cdb70------2"},"url":"https://bornunique911.medium.com/payatu-hiring-ctf-2022-challenges-writeup-87de06310e6d?source=rss-348ebd5cdb70------2"}</script>
 <!-- End Jekyll SEO tag -->
 
   
@@ -304,7 +304,7 @@
     
     <li class="nav-item">
       <a href="/tags/" class="nav-link">
-        <i class="fa-fw fas fa-tag ml-xl-3 mr-xl-3 unloaded"></i>
+        <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i>
         
 
         <span>TAGS</span>
@@ -4491,26 +4491,6 @@
 
     <!-- lastmod date -->
     
-    <span>
-      Updated
-      <!--
-  Date format snippet
-  See: ${JS_ROOT}/utils/locale-dateime.js
--->
-
-
-
-
-
-<em class=""
-    data-ts="1670073013"
-    data-df="ll"
-    data-toggle="tooltip" data-placement="bottom">
-  Dec  3, 2022
-</em>
-
-    </span>
-    
 
   
 
@@ -4671,7 +4651,7 @@
         
         
         
-      <li><a href="/posts/payatu-hiring-ctf-2022-challenges-writeup/">Payatu Hiring CTF 2022: Challenges Writeup</a></li>
+      <li><a href="/posts/intigriti-s-june-xss-challenge-writeup/">Intigriti’s June XSS challenge: Writeup</a></li>
       
     </ul>
   </div> <!-- #access-lastmod -->
@@ -4694,7 +4674,106 @@
 
 
 
+  
+    
+    
+    
+    
+      
+        
+        
 
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+
+
+  <div id="access-tags">
+    <div class="panel-heading">Trending Tags</div>
+    <div class="d-flex flex-wrap mt-3 mb-1 mr-3">
+
+    
+      
+      <a class="post-tag" href="/tags/bug-bounty/">Bug Bounty</a>
+    
+      
+      <a class="post-tag" href="/tags/intigriti/">Intigriti</a>
+    
+      
+      <a class="post-tag" href="/tags/prototype-pollution/">Prototype Pollution</a>
+    
+      
+      <a class="post-tag" href="/tags/xss-challenge/">XSS Challenge</a>
+    
+
+    </div>
+  </div>
 
 
     </div>
@@ -4748,6 +4827,19 @@
   
 
   
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+  
     
   
 
@@ -4775,6 +4867,16 @@
   
     
     
+      
+      
+        
+        
+        
+      
+    
+  
+    
+    
   
     
     
@@ -4793,6 +4895,44 @@
     <h3 class="pt-2 mb-4 ml-1"
       data-toc-skip>Further Reading</h3>
     <div class="card-deck mb-4">
+    
+      
+      
+      <div class="card">
+        <a href="/posts/intigriti-s-june-xss-challenge-writeup/">
+          <div class="card-body">
+            <!--
+  Date format snippet
+  See: ${JS_ROOT}/utils/locale-dateime.js
+-->
+
+
+
+
+
+<em class="small"
+    data-ts="1687804200"
+    data-df="ll"
+    >
+  Jun 27, 2023
+</em>
+
+            <h3 class="pt-0 mt-1 mb-3" data-toc-skip>Intigriti’s June XSS challenge: Writeup</h3>
+            <div class="text-muted small">
+              <p>
+                
+
+
+
+
+
+                Intigriti’s June XSS Challenge By @0xGodson_ (https://challenge-0623.intigriti.io/)
+Hello everyone, I hope you all are doing great things and learning new things everyday just like me. So I am here...
+              </p>
+            </div>
+          </div>
+        </a>
+      </div>
     
       
       
@@ -4851,10 +4991,10 @@ Hello everyone, I hope you all are doing great. This is my first blog of any Try
   
 
   
-  <div class="btn btn-outline-primary disabled"
+  <a href="/posts/intigriti-s-june-xss-challenge-writeup/" class="btn btn-outline-primary"
     prompt="Newer">
-    <p>-</p>
-  </div>
+    <p>Intigriti’s June XSS challenge: Writeup</p>
+  </a>
   
 
 </div>
@@ -4893,7 +5033,106 @@ Hello everyone, I hope you all are doing great. This is my first blog of any Try
 
 
 
+  
+    
+    
+    
+    
+      
+        
+        
 
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+    
+  
+    
+    
+    
+    
+      
+        
+        
+
+
+
+  <div id="access-tags">
+    <div class="panel-heading">Trending Tags</div>
+    <div class="d-flex flex-wrap mt-3 mb-1 mr-3">
+
+    
+      
+      <a class="post-tag" href="/tags/bug-bounty/">Bug Bounty</a>
+    
+      
+      <a class="post-tag" href="/tags/intigriti/">Intigriti</a>
+    
+      
+      <a class="post-tag" href="/tags/prototype-pollution/">Prototype Pollution</a>
+    
+      
+      <a class="post-tag" href="/tags/xss-challenge/">XSS Challenge</a>
+    
+
+    </div>
+  </div>
 
 
     </div>
@@ -5118,3 +5357,4 @@ SimpleJekyllSearch({
   </body>
 
 </html>
+

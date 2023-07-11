@@ -3,7 +3,7 @@
   {
     "title": "Intigriti’s June XSS challenge: Writeup",
     "url": "/posts/intigriti-s-june-xss-challenge-writeup/",
-    "categories": "",
+    "categories": "Web Exploitation, Bug Bounty",
     "tags": "Intigriti, XSS Challenge, Prototype Pollution, Bug Bounty",
     "date": "2023-06-27 00:00:00 +0530",
     
@@ -20,8 +20,8 @@
   {
     "title": "Payatu Hiring CTF 2022: Challenges Writeup",
     "url": "/posts/payatu-hiring-ctf-2022-challenges-writeup/",
-    "categories": "",
-    "tags": "",
+    "categories": "CTF, Hiring CTF",
+    "tags": "Payatu Hiring CTF",
     "date": "2022-10-16 00:00:00 +0530",
     
 
@@ -37,8 +37,8 @@
   {
     "title": "Gallery - TryHackMe Write-up",
     "url": "/posts/gallery-tryhackme-write-up/",
-    "categories": "",
-    "tags": "",
+    "categories": "TryHackMe",
+    "tags": "TryHackMe Walkthrough",
     "date": "2022-03-07 00:00:00 +0530",
     
 

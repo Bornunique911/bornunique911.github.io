@@ -4,7 +4,7 @@
   <id>http://localhost:4000/</id>
   <title>Bornunique911</title>
   <subtitle>Cybersec Enthusiast,CTF player,Top 1% on TryHackMe.com,Infosec Researcher</subtitle>
-  <updated>2023-07-12T03:17:02+05:30</updated>
+  <updated>2023-07-12T22:51:00+05:30</updated>
   <author>
     <name>Bornunique911</name>
     <uri>http://localhost:4000/</uri>
@@ -24,7 +24,7 @@
     <link href="http://localhost:4000/posts/intigriti-s-june-xss-challenge-writeup/" rel="alternate" type="text/html" title="Intigriti’s June XSS challenge: Writeup" />
     <published>2023-06-27T00:00:00+05:30</published>
   
-    <updated>2023-07-12T02:21:53+05:30</updated>
+    <updated>2023-07-12T03:17:45+05:30</updated>
   
     <id>http://localhost:4000/posts/intigriti-s-june-xss-challenge-writeup/</id>
     <content src="http://localhost:4000/posts/intigriti-s-june-xss-challenge-writeup/" />
@@ -60,7 +60,7 @@
     <link href="http://localhost:4000/posts/payatu-hiring-ctf-2022-challenges-writeup/" rel="alternate" type="text/html" title="Payatu Hiring CTF 2022: Challenges Writeup" />
     <published>2022-10-16T00:00:00+05:30</published>
   
-    <updated>2022-10-16T00:00:00+05:30</updated>
+    <updated>2023-07-12T03:17:45+05:30</updated>
   
     <id>http://localhost:4000/posts/payatu-hiring-ctf-2022-challenges-writeup/</id>
     <content src="http://localhost:4000/posts/payatu-hiring-ctf-2022-challenges-writeup/" />
@@ -96,7 +96,7 @@
     <link href="http://localhost:4000/posts/gallery-tryhackme-write-up/" rel="alternate" type="text/html" title="Gallery - TryHackMe Write-up" />
     <published>2022-03-07T00:00:00+05:30</published>
   
-    <updated>2022-03-07T00:00:00+05:30</updated>
+    <updated>2023-07-12T03:17:45+05:30</updated>
   
     <id>http://localhost:4000/posts/gallery-tryhackme-write-up/</id>
     <content src="http://localhost:4000/posts/gallery-tryhackme-write-up/" />

@@ -4,7 +4,7 @@
   <id>http://localhost:4000/</id>
   <title>Bornunique911</title>
   <subtitle>Cybersec Enthusiast,CTF player,Top 1% on TryHackMe.com,Infosec Researcher</subtitle>
-  <updated>2023-07-17T23:33:21+05:30</updated>
+  <updated>2023-07-17T23:40:42+05:30</updated>
   <author>
     <name>Bornunique911</name>
     <uri>http://localhost:4000/</uri>
@@ -60,7 +60,7 @@
     <link href="http://localhost:4000/posts/payatu-hiring-ctf-2022-challenges-writeup/" rel="alternate" type="text/html" title="Payatu Hiring CTF 2022: Challenges Writeup" />
     <published>2022-10-16T00:00:00+05:30</published>
   
-    <updated>2023-07-12T03:17:45+05:30</updated>
+    <updated>2023-07-17T23:34:30+05:30</updated>
   
     <id>http://localhost:4000/posts/payatu-hiring-ctf-2022-challenges-writeup/</id>
     <content src="http://localhost:4000/posts/payatu-hiring-ctf-2022-challenges-writeup/" />
@@ -84,7 +84,7 @@
 
 
 
-      Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2Hello everyone, I hope you all are doing great things and learning's everyday just like me. So I hereby came with my new and fresh blog again on Payatu Hiring CTF challenges walkthroughs. I solved 8 challenges out of 30 challenges which consists of Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2, Catch Me If You Can and so on and I secu...
+      Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2Hello everyone, I hope you are all doing great things and learning every day, just like me. So I hereby came with my new and fresh blog again on Payatu Hiring CTF challenges walkthroughs. I solved 8 challenges out of 30 challenges which consists of Babysqli, Stardust, EasyCalc, Mistake-1 and Mistake-2, Catch Me If You Can and so on and I secu...
     </summary>
   
 

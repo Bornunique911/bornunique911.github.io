@@ -2,7 +2,7 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://localhost:4000/posts/gallery-tryhackme-write-up/</loc>
-<lastmod>2023-07-12T03:17:45+05:30</lastmod>
+<lastmod>2023-07-27T15:10:01+05:30</lastmod>
 </url>
 <url>
 <loc>http://localhost:4000/posts/payatu-hiring-ctf-2022-challenges-writeup/</loc>
@@ -10,7 +10,7 @@
 </url>
 <url>
 <loc>http://localhost:4000/posts/intigriti-s-june-xss-challenge-writeup/</loc>
-<lastmod>2023-07-12T03:17:45+05:30</lastmod>
+<lastmod>2023-07-27T15:10:01+05:30</lastmod>
 </url>
 <url>
 <loc>http://localhost:4000/posts/xss-types-and-prevention/</loc>
@@ -18,19 +18,19 @@
 </url>
 <url>
 <loc>http://localhost:4000/categories/</loc>
-<lastmod>2023-07-27T14:26:05+05:30</lastmod>
+<lastmod>2023-07-27T15:35:34+05:30</lastmod>
 </url>
 <url>
 <loc>http://localhost:4000/tags/</loc>
-<lastmod>2023-07-27T14:26:05+05:30</lastmod>
+<lastmod>2023-07-27T15:35:34+05:30</lastmod>
 </url>
 <url>
 <loc>http://localhost:4000/archives/</loc>
-<lastmod>2023-07-27T14:26:05+05:30</lastmod>
+<lastmod>2023-07-27T15:35:34+05:30</lastmod>
 </url>
 <url>
 <loc>http://localhost:4000/about/</loc>
-<lastmod>2023-07-27T14:26:05+05:30</lastmod>
+<lastmod>2023-07-27T15:35:34+05:30</lastmod>
 </url>
 <url>
 <loc>http://localhost:4000/</loc>
@@ -85,6 +85,9 @@
 </url>
 <url>
 <loc>http://localhost:4000/categories/bug-bounty/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/categories/owasp-top-10/</loc>
 </url>
 <url>
 <loc>http://localhost:4000/googled0e8cc3012532975.html</loc>

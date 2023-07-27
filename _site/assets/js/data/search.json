@@ -1,10 +1,27 @@
 [
   
   {
+    "title": "XSS : Types and Prevention",
+    "url": "/posts/xss-types-and-prevention/",
+    "categories": "",
+    "tags": "xss-vulnerability, xss-attack, cross-site-scripting, owasp-top-10, cybersecurity",
+    "date": "2023-07-17 00:00:00 +0530",
+    
+
+
+
+
+
+    
+    "snippet": "XSS : Types and PreventionXSS aka Cross-site ScriptingSo, here I am, committed to my lovely beginner hacker friends, presenting my new blog where I explain the different types of XSS and discuss th...",
+    "content": "XSS : Types and PreventionXSS aka Cross-site ScriptingSo, here I am, committed to my lovely beginner hacker friends, presenting my new blog where I explain the different types of XSS and discuss the prevention methods to mitigate XSS vulnerabilities. Let’s begin.What is Cross-Site Scripting?Cross-Site Scripting also known as XSS, is a web application vulnerability, that allows an attacker to inject malicious code into a web page that is viewed by other users. The injected code can execute in the user’s web browser and can potentially steal user’s information.What is a vulnerability?A vulnerability is a weakness in a system,network or application.— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —What are the types of XSS?Types of XSS :Basically, there are 3 types.Reflected XSS (where the malicious script comes from the current HTTP request) :It is an simplest variety of XSS. It arises when an application receives data in HTTP request and includes that data within the immediate response in a unsafe way.Stored XSS (where the malicious script comes from the website’s database) :Also known as persistent or second-order XSS arises when an application receives data from an untrusted source and includes that data within it’s later HTTP responses in an unsafe way.DOM XSS (where the vulnerability is in the client-side code rather than server-side code) :This type of XSS arises when an application contain some client-side JavaScript that processes data from an untrusted source in an unsafe way,usually by writing the data back to the DOM.What is DOM?The Document Object Model is a programming interface for web documents. It represents the page so that programs can change the document structure, style, and content.— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —How to Prevent XSS Attacks?XSS Prevention :There are several ways to prevent XSS attacks:Input Validation : This involves checking user input and ensuring that it meets the required criteria.For example, if a form expects a phone number, the input should be a valid phone number and it should be checked properly.2. Output Encoding : This involves converting special characters in user input into their HTML or JavaScript equivalents, so that the input is displayed as plaintext and not interpreted as code.3. Content security policy : This is a security feature that allows a website to specify which resources are allowed to be loaded and executed by the web browser. It can also be used to block the execution of malicious code.4. Use of frameworks and libraries : Many web development frameworks and libraries include built-in protection against XSS attacks.For example : Django web framework for Python includes a automatic cross-site scripting protection system.5. Regular security testing : Regular security testing of web applications can help identify and fix vulnerabilities before they can be exploited by the attackers. This can include both manual testing and the use of automated tools.— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —Peace !!— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —Learning resources from where you can learn and practice more on XSS vulnerability for free :What is cross-site scripting (XSS) and how to prevent it? | Web Security AcademyTryHackMe | OWASP Juice ShopTryHackMe | OWASP Top 10TryHackMe | That&#39;s The TicketTryHackMe | The MarketplaceTryHackMe | MD2PDF— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —Update on my last blog :I was one of the winner for the June’s XSS Challenge for the best writeup category and I won a €50 swag voucher from Intigriti. https://twitter.com/intigriti/status/1673629210005446657— — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — —"
+  },
+  
+  {
     "title": "Intigriti’s June XSS challenge: Writeup",
     "url": "/posts/intigriti-s-june-xss-challenge-writeup/",
     "categories": "Web Exploitation, Bug Bounty",
-    "tags": "Intigriti, XSS Challenge, Prototype Pollution, Bug Bounty",
+    "tags": "xss-challenge, bug-bounty, prototype-pollution, xss-attack, intigriti",
     "date": "2023-06-27 00:00:00 +0530",
     
 
@@ -38,7 +55,7 @@
     "title": "Gallery - TryHackMe Write-up",
     "url": "/posts/gallery-tryhackme-write-up/",
     "categories": "TryHackMe",
-    "tags": "TryHackMe Walkthrough",
+    "tags": "tryhackme-walkthrough, tryhackme, cybersecurity",
     "date": "2022-03-07 00:00:00 +0530",
     
 

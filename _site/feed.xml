@@ -4,7 +4,7 @@
   <id>http://localhost:4000/</id>
   <title>Bornunique911</title>
   <subtitle>Cybersec Enthusiast,CTF player,Top 1% on TryHackMe.com,Infosec Researcher</subtitle>
-  <updated>2023-07-27T16:01:12+05:30</updated>
+  <updated>2024-11-03T15:24:25+05:30</updated>
   <author>
     <name>Bornunique911</name>
     <uri>http://localhost:4000/</uri>
@@ -13,7 +13,7 @@
   <link rel="alternate" type="text/html" hreflang="en"
     href="http://localhost:4000/"/>
   <generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator>
-  <rights> © 2023 Bornunique911 </rights>
+  <rights> © 2024 Bornunique911 </rights>
   <icon>/assets/img/favicons/favicon.ico</icon>
   <logo>/assets/img/favicons/favicon-96x96.png</logo>
 
@@ -58,7 +58,7 @@
     <link href="http://localhost:4000/posts/intigriti-s-june-xss-challenge-writeup/" rel="alternate" type="text/html" title="Intigriti’s June XSS challenge: Writeup" />
     <published>2023-06-27T00:00:00+05:30</published>
   
-    <updated>2023-07-27T15:37:23+05:30</updated>
+    <updated>2023-07-27T16:02:54+05:30</updated>
   
     <id>http://localhost:4000/posts/intigriti-s-june-xss-challenge-writeup/</id>
     <content src="http://localhost:4000/posts/intigriti-s-june-xss-challenge-writeup/" />

@@ -4,7 +4,7 @@ icon: fas fa-info-circle
 order: 4
 ---
 
-My name is Bornunique911, and I have a strong passion for cybersecurity, with aspirations of becoming a professional in the field. I enjoy actively participating in Capture The Flag (CTF) competitions, as they help me grow my skills and practical knowledge. My journey began on platforms like TryHackMe and HackTheBox, where I’ve completed over 500 rooms focusing on web application security and various challenges. In addition to this hands-on experience, I have participated in over 100 CTF competitions through [https://ctftime.org](ctftime.org).
+My name is Bornunique911, and I have a strong passion for cybersecurity, with aspirations of becoming a professional in the field. I enjoy actively participating in Capture The Flag (CTF) competitions, as they help me grow my skills and practical knowledge. My journey began on platforms like TryHackMe and HackTheBox, where I’ve completed over 500 rooms focusing on web application security and various challenges. In addition to this hands-on experience, I have participated in over 100 CTF competitions through [ctftime.org](https://ctftime.org).
 
 To further enhance my expertise, I recently completed the [Google Cybersecurity Certificate](https://www.credly.com/badges/454eacba-9ed6-44ce-b046-ac3688d120d4) and the [CompTIA Security+ certification](https://www.credly.com/badges/0983f4a3-2676-49d8-b3b5-c4ef67b41c39). I’ve also pursued additional coursework, including [IBM's Cybersecurity Analyst Professional Certificate](https://www.credly.com/badges/a45251e1-c41c-4a3f-ab75-8f94a2149c35) and the Bits and Bytes of Networking course from Google, among others.
 

@@ -61,13 +61,28 @@ I’m particularly interested in continuing to grow across **web security, offen
 ---
 ## 💻 **Tools & Technologies**
 
-**Languages & Scripting:** <image src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=black"> · <image src="https://img.shields.io/badge/bash-4D4D4D?style=for-the-badge&logo=windows%20terminal&logoColor=white">
+**Languages & Scripting:** 
+<div class="badge-group">
+<img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=black"> · <img src="https://img.shields.io/badge/bash-4D4D4D?style=for-the-badge&logo=windows%20terminal&logoColor=white">
+</div>
 
-**Platforms:** <image src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black"> · <image src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white"> · <image src="https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white"> · <image src="https://img.shields.io/badge/Kali_Linux-557C94?style=for-the-badge&logo=kali-linux&logoColor=white"> · <image src="https://img.shields.io/badge/Debian-A81D33?style=for-the-badge&logo=debian&logoColor=white">
+**Development & Version Control:**
+<div class="badge-group"> 
+<img src="https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white"> · <img src="https://img.shields.io/badge/GitHub-%23121011.svg?logo=github&logoColor=white"> · <img src="https://img.shields.io/badge/GitHub%20Pages-121013?logo=github&logoColor=white"> · <img src="https://img.shields.io/badge/Jekyll-C00?logo=jekyll&logoColor=fff">
+</div>
 
-**Security:** Web Application Security · Penetration Testing · CTF's · Vulnerability Research · Security Standards
+**Database & Data:**
+<div class="badge-group">
+<img src="https://img.shields.io/badge/SQLite-%2307405e.svg?logo=sqlite&logoColor=white">
+</div>
 
-**Development:** <image src="https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white"> · <image src="https://img.shields.io/badge/GitHub-%23121011.svg?logo=github&logoColor=white"> · <image src="https://img.shields.io/badge/SQLite-%2307405e.svg?logo=sqlite&logoColor=white"> · SQLAlchemy · CLI tooling · ETL pipelines
+**Platforms:** 
+<div class="badge-group">
+<img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black"> · <img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white"> · <img src="https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white"> · <img src="https://img.shields.io/badge/Kali_Linux-557C94?style=for-the-badge&logo=kali-linux&logoColor=white"> · <img src="https://img.shields.io/badge/Debian-A81D33?style=for-the-badge&logo=debian&logoColor=white">
+</div>
+
+**Security:** 
+*Web Application Security* · *Penetration Testing* · *CTF's* · *Vulnerability Research* · *Security Standards*
 
 ---
 ## 🔗 **Cybersecurity Profiles**

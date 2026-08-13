@@ -32,7 +32,7 @@ I come from a non-tech background and have built my cybersecurity skills primari
 ---
 ## 🧠 **Cybersecurity Journey**
 
-My journey started with platforms such as **TryHackMe** and **Hack The Box**, where I worked through hundreds of rooms covering web application security, penetration testing, Linux, networking, privilege escalation, and other security concepts.
+My journey started with platforms such as **TryHackMe** and **Hack The Box**, where I solved through hundreds of rooms covering web application security, penetration testing, Linux, networking, privilege escalation, and other security concepts.
 
 CTFs are a major part of how I learn. Solving challenges forces me to research unfamiliar technologies, think creatively, and turn theory into practical skills. I’ve participated in **150+ CTF competitions** through **[CTFtime.org](https://ctftime.org/team/147652)** and continue to use them as a way to explore new areas of security.
 
@@ -111,13 +111,15 @@ I’m particularly interested in continuing to grow across **web security, offen
 ## **My GitHub Stats**
 
 ---
-![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=bornunique911&theme=tokyonight)
+![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=bornunique911&theme=tokyonight&animation=rise&utcOffset=5.3)
 
 ![](https://readme-stats-fork-mauve.vercel.app/api/top-langs/?username=bornunique911&theme=tokyonight&hide=html,css&hide_border=false&no-bg=true&no-frame=true&layout=compact&langs_count=10)
 
 ![](https://readme-stats-fork-mauve.vercel.app/api/?username=bornunique911&theme=tokyonight&rank_icon=github&show_icons=true&count_private=true)
 
-![](https://github-readme-streak-stats-five-roan.vercel.app?user=bornunique911&theme=tokyonight)
+![](https://github-readme-streak-stats-five-roan.vercel.app?user=bornunique911&theme=tokyonight&date_format=j%20M%5B%20Y%5D)
+
+![](https://github-profile-summary-cards.vercel.app/api/cards/productive-time?username=bornunique911&theme=2077&animation=rise&utcOffset=5.3)
 
 <div style="display: flex; justify-content: center; align-items: center; margin: 1rem 0;">
   <img src="https://github-profile-repo.vercel.app/?username=Bornunique911&theme=algolia&column=3" alt="GitHub Profile Trophies">

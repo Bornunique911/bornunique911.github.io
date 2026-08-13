@@ -41,13 +41,27 @@ CTFs are a major part of how I learn. Solving challenges forces me to research u
 
 I contribute to **[OWASP OpenCRE](https://github.com/OWASP/OpenCRE)**, an open-source platform for connecting security requirements with standards and guidelines.
 
-My **25 PRs** have included work on:
+My [**25 PRs**](https://github.com/OWASP/OpenCRE/pulls?q=is%3Apr+author%3ABornunique911) (**4 open PR's**, **21 closed PR's** including **10 PR's merged**) have included work on:
 
-- AI/LLM and Kubernetes resource importers
-- CWE mapping, inheritance, and data cleanup
-- ETL pipelines, refresh tooling, and validation
-- Upstream synchronization and retry handling
-- Testing, CLI tooling, documentation, and contributor workflows
+- <span class="hover-item">AI/LLM and Kubernetes resource importers
+  <span class="hover-tooltip">Built resource importers and integrated parsing, mapping, CLI support, and tests for AI/LLM and Kubernetes resources. <a href="https://github.com/OWASP/OpenCRE/pull/960" target="_blank">PR #960</a></span>
+  </span>
+
+- <span class="hover-item">CWE mapping, inheritance, and data cleanup
+  <span class="hover-tooltip">Improved CWE mapping through inheritance and related-CWE handling, while cleaning and maintaining mapping data. <a href="https://github.com/OWASP/OpenCRE/pull/823" target="_blank">PR #823</a> · <a href="https://github.com/OWASP/OpenCRE/pull/939" target="_blank">PR #939</a> · <a href="https://github.com/OWASP/OpenCRE/pull/992" target="_blank">PR #992</a></span>
+  </span>
+
+- <span class="hover-item">ETL pipelines, refresh tooling, and validation
+  <span class="hover-tooltip">Worked on ETL workflows, refresh tooling, and validation to keep imported security data consistent and reliable. <a href="https://github.com/OWASP/OpenCRE/pull/950" target="_blank">PR #950</a> · <a href="https://github.com/OWASP/OpenCRE/pull/952" target="_blank">PR #952</a></span>
+  </span>
+
+- <span class="hover-item">Upstream synchronization and retry handling
+  <span class="hover-tooltip">Improved synchronization with upstream sources and added retry handling for more reliable imports. <a href="https://github.com/OWASP/OpenCRE/pull/951" target="_blank">PR #951</a></span>
+  </span>
+
+- <span class="hover-item">Testing, CLI tooling, documentation, and contributor workflows
+  <span class="hover-tooltip">Added tests, improved CLI tooling and documentation, and streamlined contributor workflows. <a href="https://github.com/OWASP/OpenCRE/pull/997" target="_blank">PR #997</a></span>
+  </span>
 
 This work has given me practical experience with **Python, parsers, ETL/data pipelines, SQLite/SQLAlchemy, testing, CLI development, and security-standard mapping**.
 

@@ -1,0 +1,49 @@
+.hover-item {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dotted currentColor;
+}
+
+.hover-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  z-index: 1000;
+  bottom: calc(100% + 10px);
+  left: 0;
+
+  width: 360px;
+  padding: 12px 14px;
+
+  background: #222;
+  color: #fff;
+  border-radius: 8px;
+
+  font-size: 0.85rem;
+  line-height: 1.5;
+  font-weight: normal;
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.hover-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 20px;
+
+  border-width: 6px;
+  border-style: solid;
+  border-color: #222 transparent transparent transparent;
+}
+
+.hover-item:hover .hover-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.hover-tooltip a {
+  color: #7db7ff;
+}

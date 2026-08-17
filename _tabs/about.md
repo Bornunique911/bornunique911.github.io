@@ -102,8 +102,8 @@ I’m particularly interested in continuing to grow across **web security, offen
 ## 🔗 **Cybersecurity Profiles**
 
 [TryHackMe](https://tryhackme.com/Bornunique911) ·
-[Hack The Box](https://app.hackthebox.com/profile/526639) ·
-[LetsDefend](https://app.letsdefend.io/user/bornunique911) ·
+[Hack The Box](https://app.hackthebox.com/public/users/526639) ·
+[LetsDefend](https://app.letsdefend.io/user/Bornunique911) ·
 [CyberDefenders](https://cyberdefenders.org/p/Bornunique911) ·
 [BlueTeam Labs Online](https://blueteamlabs.online/public/user/e3308e34bee468284c38d4)
 
